@@ -1,0 +1,320 @@
+{
+    "1": {
+        "entree/sortie" : true,
+        "voisins" : [0,2],
+        "avant" : [2],
+        "arriere" : [0]
+    },
+    "2": {
+        "entree/sortie" : false,
+        "voisins" : [1,3],
+        "avant" : [3],
+        "arriere": [1]
+    },
+    "3": {
+        "entree/sortie" : false,
+        "voisins" : [2,4],
+        "avant" : [4],
+        "arriere": [2]
+    },
+    "4": {
+        "entree/sortie" : false,
+        "voisins" : [3,5],
+        "avant" : [5],
+        "arriere": [3]
+    },
+    "5": {
+        "entree/sortie" : false,
+        "voisins" : [4,6],
+        "avant" : [6],
+        "arriere": [4]
+    },
+    "6": {
+        "entree/sortie" : false,
+        "voisins" : [5,7,31,32],
+        "avant" : [7,32],
+        "arriere": [5,31]
+    },
+    "7": {
+        "entree/sortie" : false,
+        "voisins" : [6,8],
+        "avant" : [8],
+        "arriere": [6]
+    },
+    "8": {
+        "entree/sortie" : false,
+        "voisins" : [7,9],
+        "avant" : [9],
+        "arriere": [7]
+    },
+    "9": {
+        "entree/sortie" : false,
+        "voisins" : [8,10,44,45],
+        "avant" : [10,45],
+        "arriere": [8,44]
+    },
+    "10": {
+        "entree/sortie" : false,
+        "voisins" : [9,11],
+        "avant" : [11],
+        "arriere": [9]
+    },
+    "11": {
+        "entree/sortie" : false,
+        "voisins" : [10,12,48],
+        "avant" : [12,48],
+        "arriere": [10]
+    },
+    "12": {
+        "entree/sortie" : false,
+        "voisins" : [11,13],
+        "avant" : [13],
+        "arriere": [11]
+    },
+    "13": {
+        "entree/sortie" : true,
+        "voisins" : [12,0],
+        "avant" : [0],
+        "arriere": [12]
+    },
+    "14": {
+        "entree/sortie" : true,
+        "voisins" : [0,15],
+        "avant" : [15],
+        "arriere": [0]
+    },
+    "15": {
+        "entree/sortie" : false,
+        "voisins" : [14,16],
+        "avant" : [16],
+        "arriere": [14]
+    },
+    "16": {
+        "entree/sortie" : false,
+        "voisins" : [15,17],
+        "avant" : [17],
+        "arriere": [15]
+    },
+    "17": {
+        "entree/sortie" : false,
+        "voisins" : [16,18],
+        "avant" : [18],
+        "arriere": [16]
+    },
+    "18": {
+        "entree/sortie" : false,
+        "voisins" : [17,19],
+        "avant" : [19],
+        "arriere": [17]
+    },
+    "19": {
+        "entree/sortie" : false,
+        "voisins" : [18,20,34,35],
+        "avant" : [20,35],
+        "arriere": [18,34]
+    },
+    "20": {
+        "entree/sortie" : false,
+        "voisins" : [19,21],
+        "avant" : [21],
+        "arriere": [19]
+    },
+    "21": {
+        "entree/sortie" : false,
+        "voisins" : [20,22],
+        "avant" : [22],
+        "arriere": [20]
+    },
+    "22": {
+        "entree/sortie" : false,
+        "voisins" : [21,23,47],
+        "avant" : [23],
+        "arriere": [21,47]
+    },
+    "23": {
+        "entree/sortie" : false,
+        "voisins" : [22,24],
+        "avant" : [24],
+        "arriere": [22]
+    },
+    "24": {
+        "entree/sortie" : false,
+        "voisins" : [23,25,50,51],
+        "avant" : [25,51],
+        "arriere": [23,50]
+    },
+    "25": {
+        "entree/sortie" : false,
+        "voisins" : [24,26],
+        "avant" : [26],
+        "arriere": [24]
+    },
+    "26": {
+        "entree/sortie" : true,
+        "voisins" : [25,0],
+        "avant" : [0],
+        "arriere": [25]
+    },
+    "27": {
+        "entree/sortie" : true,
+        "voisins" : [0,28],
+        "avant" : [28],
+        "arriere": [0]
+    },
+    "28": {
+        "entree/sortie" : false,
+        "voisins" : [27,29],
+        "avant" : [29],
+        "arriere": [27]
+    },
+    "29": {
+        "entree/sortie" : false,
+        "voisins" : [28,30],
+        "avant" : [30],
+        "arriere": [28]
+    },
+    "30": {
+        "entree/sortie" : false,
+        "voisins" : [29,31],
+        "avant" : [31],
+        "arriere": [29]
+    },
+    "31": {
+        "entree/sortie" : false,
+        "voisins" : [30,6],
+        "avant" : [6],
+        "arriere": [30]
+    },
+    "32": {
+        "entree/sortie" : false,
+        "voisins" : [6,33],
+        "avant" : [33],
+        "arriere": [6]
+    },
+    "33": {
+        "entree/sortie" : false,
+        "voisins" : [32,34],
+        "avant" : [34],
+        "arriere": [32]
+    },
+    "34": {
+        "entree/sortie" : false,
+        "voisins" : [33,19],
+        "avant" : [19],
+        "arriere": [33]
+    },
+    "35": {
+        "entree/sortie" : false,
+        "voisins" : [19,36],
+        "avant" : [36],
+        "arriere": [19]
+    },
+    "36": {
+        "entree/sortie" : false,
+        "voisins" : [35,37],
+        "avant" : [37],
+        "arriere": [35]
+    },
+    "37": {
+        "entree/sortie" : false,
+        "voisins" : [36,38],
+        "avant" : [38],
+        "arriere": [36]
+    },
+    "38": {
+        "entree/sortie" : true,
+        "voisins" : [37,0],
+        "avant" : [0],
+        "arriere": [37]
+    },
+    "39": {
+        "entree/sortie" : true,
+        "voisins" : [0,40],
+        "avant" : [40],
+        "arriere": [0]
+    },
+    "40": {
+        "entree/sortie" : false,
+        "voisins" : [39,41],
+        "avant" : [41],
+        "arriere": [39]
+    },
+    "41": {
+        "entree/sortie" : false,
+        "voisins" : [40,42],
+        "avant" : [42],
+        "arriere": [40]
+    },
+    "42": {
+        "entree/sortie" : false,
+        "voisins" : [41,43],
+        "avant" : [43],
+        "arriere": [41]
+    },
+    "43": {
+        "entree/sortie" : false,
+        "voisins" : [42,44],
+        "avant" : [44],
+        "arriere": [42]
+    },
+    "44": {
+        "entree/sortie" : false,
+        "voisins" : [43,9],
+        "avant" : [9],
+        "arriere": [43]
+    },
+    "45": {
+        "entree/sortie" : false,
+        "voisins" : [9,46],
+        "avant" : [46],
+        "arriere": [9]
+    },
+    "46": {
+        "entree/sortie" : false,
+        "voisins" : [45,47],
+        "avant" : [47],
+        "arriere": [45]
+    },
+    "47": {
+        "entree/sortie" : false,
+        "voisins" : [46,22],
+        "avant" : [22],
+        "arriere": [46]
+    },
+    "48": {
+        "entree/sortie" : false,
+        "voisins" : [11,49],
+        "avant" : [49],
+        "arriere": [11]
+    },
+    "49": {
+        "entree/sortie" : false,
+        "voisins" : [48,50],
+        "avant" : [50],
+        "arriere": [48]
+    },
+    "50": {
+        "entree/sortie" : false,
+        "voisins" : [49,24],
+        "avant" : [24],
+        "arriere": [49]
+    },
+    "51": {
+        "entree/sortie" : false,
+        "voisins" : [24,52],
+        "avant" : [52],
+        "arriere": [24]
+    },
+    "52": {
+        "entree/sortie" : false,
+        "voisins" : [51,53],
+        "avant" : [53],
+        "arriere": [51]
+    },
+    "53": {
+        "entree/sortie" : true,
+        "voisins" : [52,0],
+        "avant" : [0],
+        "arriere": [52]
+    }
+}

@@ -86,6 +86,17 @@ def consommation_classique(puissance:int, nbr_lampadaire:int, data:dict)->float 
     return (tps/3.6*10**-6) * nbr_lampadaire * puissance
 
 def mise_en_forme(nbr_utilisateur:int, nbr_passage:int, data:dict)->None:
+    """Permet la mise ne forme dans le terminale des réponses 
+
+    Parameters
+    ----------
+    nbr_utilisateur : int
+        nombre d'utilisateur
+    nbr_passage : int
+        nombre de passage de chaque utilisateur 
+    data : dict
+        le dictionnaire qui contient toute les données 
+    """
     alea_personne(nbr_utilisateur, nbr_passage, data)
     print("\n")
     print(" - Consommation optimiser : " + str(round(consommation_optimiser(puissance, Data))) + "Wh = " + str(round(consommation_optimiser(puissance, Data)*10**-3)) + "kWh")
