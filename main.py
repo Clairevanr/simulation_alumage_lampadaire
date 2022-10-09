@@ -1,14 +1,12 @@
 import json
 from random import *
 
-with open('lampadaire.json') as json_data:
-    lampadaire = json.load(json_data)
 with open('carte.json') as json_carte:
     carte = json.load(json_carte)
     
 Data = { i : {"nb_allumage" : 0, "tps_allumage" : 0} for i in range(len(carte)) } # initialisations de la liste des données 
 start = [ i for i in carte if carte[i]["entree/sortie"] == True ]
-vitesse = [7.2, 54, 72, 90, 108]
+vitesse = [7.2, 54, 72, 90, 108] # en km/h
 puissance = 70 # en W
 cst_tps = 6 # en s
 
@@ -56,7 +54,7 @@ def trajet_voisin()->list:
         trajet.append(begin)
     return trajet
 
-def deplacement(tps:int, vitesse:list, nbr_utilisateur:int, simulation = trajet())->dict:
+def deplacement(tps:int, vitesse:list, nbr_utilisateur:int)->dict:
     """Permet de de simuler le deplacement simultane de plusieur utilisateu en meme temps sur un temps donner pour un nombre donné d'utilisateur
 
     Parameters
@@ -67,8 +65,6 @@ def deplacement(tps:int, vitesse:list, nbr_utilisateur:int, simulation = trajet(
         les vitesse possible entre utilisateur
     nbr_utilisateur : int
         le nombre d'utilisateur
-    simulation : _type_, optional
-        la typed de simulation a effectuer, by default trajet()
 
     Returns
     -------
@@ -78,7 +74,7 @@ def deplacement(tps:int, vitesse:list, nbr_utilisateur:int, simulation = trajet(
     data = {}
     for i in range(nbr_utilisateur):
         vitesse_utilisateur = vitesse[randint(0, len(vitesse) - 1)]
-        trajet_utilisateur = simulation
+        trajet_utilisateur = trajet()
         distance_max = vitesse_utilisateur * tps
         lampadaire_max = round(distance_max / 20)
         if len(trajet_utilisateur) > lampadaire_max :
@@ -161,7 +157,7 @@ def calcule(tps_simulation:int, tps_allumage:int, puissance:int, data:list)->tup
     conso_classic = (tps_simulation*simulation_classic) * puissance 
     return (round(conso_opti), round(conso_classic))
 
-def simulation(nbr_simulation:int, tps_simulation:int, cst_tps:int, puissance:int, vitesse:list, nbr_utilisateur:int, fonction=trajet())->tuple:
+def simulation(nbr_simulation:int, tps_simulation:int, cst_tps:int, puissance:int, vitesse:list, nbr_utilisateur:int)->dict:
     """Permet de simuler la consomation des lampadaires
 
     Parameters
@@ -178,17 +174,15 @@ def simulation(nbr_simulation:int, tps_simulation:int, cst_tps:int, puissance:in
         vitesse des utilisateur 
     nbr_utilisateur : int
         nombre d'utilisateur
-    fonction : _type_, optional
-        la fonction a utiliser pour determiner le trajet des utilisateurs, by default trajet()
 
     Returns
     -------
-    tuple
-        renvoie alors la consomation moyenne otimiser et celle classique
+    dict
+        renvoie alors la consomation moyenne otimiser et celle classique ainsi que tout les valeur de simmulation. ( { "sim" : [...], "moy" : (.., ..)} )
     """
     simulation = []
     for _ in range(nbr_simulation) : 
-        etape1 = deplacement(tps_simulation, vitesse, nbr_utilisateur, fonction)
+        etape1 = deplacement(tps_simulation, vitesse, nbr_utilisateur)
         etape2 = fusion(etape1)
         etape3 = deplacement_affectation(etape2)
         etape4 = calcule(tps_simulation, cst_tps, puissance, etape3)
@@ -198,7 +192,8 @@ def simulation(nbr_simulation:int, tps_simulation:int, cst_tps:int, puissance:in
     classic_list = [ i[1] for i in simulation]
     moy_opti = sum(optimiser_list)/len(simulation)
     moy_classic = sum(classic_list)/len(simulation)
-        
-    return (moy_opti, moy_classic)
-
-print(simulation(100, 5, cst_tps, puissance, vitesse, 50))
+    rep = {
+        "sim" : simulation,
+        "moy" : (moy_opti, moy_classic)
+    }
+    return rep
