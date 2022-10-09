@@ -1,4 +1,5 @@
 import json
+from operator import indexOf
 from random import *
 
 with open('carte.json') as json_carte:
@@ -7,6 +8,7 @@ with open('carte.json') as json_carte:
 Data = { i : {"nb_allumage" : 0, "tps_allumage" : 0} for i in range(len(carte)) } # initialisations de la liste des données 
 start = [ i for i in carte if carte[i]["entree/sortie"] == True ]
 vitesse = [7.2, 54, 72, 90, 108] # en km/h
+temps = [3, 1.6, 1.2, 0.96, 0.8] # en s
 puissance = 70 # en W
 cst_tps = 6 # en s
 
@@ -54,13 +56,15 @@ def trajet_voisin()->list:
         trajet.append(begin)
     return trajet
 
-def deplacement(tps:int, vitesse:list, nbr_utilisateur:int)->dict:
+def deplacement(tps_simulation:int, temps:list, vitesse:list, nbr_utilisateur:int)->dict:
     """Permet de de simuler le deplacement simultane de plusieur utilisateu en meme temps sur un temps donner pour un nombre donné d'utilisateur
 
     Parameters
     ----------
-    tps : int
+    tps_simulation : int
         le temps de la simulation
+    temps : list
+        liste des temps pris pa les utilisateur
     vitesse : list
         les vitesse possible entre utilisateur
     nbr_utilisateur : int
@@ -75,7 +79,7 @@ def deplacement(tps:int, vitesse:list, nbr_utilisateur:int)->dict:
     for i in range(nbr_utilisateur):
         vitesse_utilisateur = vitesse[randint(0, len(vitesse) - 1)]
         trajet_utilisateur = trajet()
-        distance_max = vitesse_utilisateur * tps
+        distance_max = vitesse_utilisateur * tps_simulation
         lampadaire_max = round(distance_max / 20)
         if len(trajet_utilisateur) > lampadaire_max :
             trajetV2 = [ trajet_utilisateur[i] for i in range(lampadaire_max)]
@@ -83,7 +87,8 @@ def deplacement(tps:int, vitesse:list, nbr_utilisateur:int)->dict:
         data[i] = {
             "trajet" : trajet_utilisateur,
             "vitesse" : vitesse_utilisateur,
-            "lampadaire_max" : lampadaire_max
+            "lampadaire_max" : lampadaire_max,
+            "temps" : temps[vitesse.index(vitesse_utilisateur)]
         }
     return data
 
@@ -110,54 +115,52 @@ def fusion(data:dict)->dict:
                 data_harmo[i].append(0)
     return data_harmo
 
-def deplacement_affectation(data:dict)->list:
+def deplacement_affectation(data:dict, data_deplacement:dict)->list:
     """Permet de renvoyer la liste d'allumage des lamapadaire en prenans en compte le fait qu'il peut y avaoir plusieur utilisateur au meme endroit au meme moment
 
     Parameters
     ----------
     data : dict
         la liste qui vien de fusion et qui va permettre de mettre tout ensemble
+    data_deplacement : dict 
+        dictionnaire des donner de déplaecemment des utilisateurs
 
     Returns
     -------
     list
         la liste avec le nombr d'allumage de chacun des utilisateur
     """
-    lampdaire_list = [ 0 for _ in range(len(carte) + 1)] # on compte pas le 0 
+    lampdaire_list = [ [] for _ in range(len(carte) + 1)] # on compte pas le 0 
     for i in range(len(data[0])) :
         for p in range(len(data)) :
-            if int(data[p][i]) != 0 and lampdaire_list[int(data[p][i])] <= i: # le 0 est tjr vide 
-                lampdaire_list[int(data[p][i])] += 1
+            if int(data[p][i]) != 0 and len(lampdaire_list[int(data[p][i])]) <= i: # le 0 est tjr vide 
+                lampdaire_list[int(data[p][i])].append(data_deplacement[p]["temps"])
     return lampdaire_list
 
-def calcule(tps_simulation:int, tps_allumage:int, puissance:int, data:list)->tuple:
+def calcule(tps_simulation:int, puissance:int, cst_tps:int, data:list)->tuple:
     """Permet le calcule de la consomation
 
     Parameters
     ----------
     tps_simulation : int
         temps de la simulation
-    tps_allumage : int
-        temps d'allumage des lamapdaires 
     puissance : int
         la puissance des lampadaires
     data : list
-        les données d'alumage des lamapdaires 
+        les données du temps d'alumage des lamapdaires 
 
     Returns
     -------
     tuple
         (consomation optimiser , consomation classique)
     """
-    simulation_optimiser = 0
-    for i in data :
-        simulation_optimiser += i
     simulation_classic = len(carte)
-    conso_opti = ((tps_allumage*simulation_optimiser)/3600) * puissance 
-    conso_classic = (tps_simulation*simulation_classic) * puissance 
+    tps_opti = sum([ (p + cst_tps) for i in data for p in i ])
+    conso_opti = ((tps_opti)/3600) * puissance 
+    conso_classic = (tps_simulation * simulation_classic) * puissance 
     return (round(conso_opti), round(conso_classic))
 
-def simulation(nbr_simulation:int, tps_simulation:int, cst_tps:int, puissance:int, vitesse:list, nbr_utilisateur:int)->dict:
+def simulation(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, puissance:int, vitesse:list, nbr_utilisateur:int)->dict:
     """Permet de simuler la consomation des lampadaires
 
     Parameters
@@ -166,6 +169,8 @@ def simulation(nbr_simulation:int, tps_simulation:int, cst_tps:int, puissance:in
         la nombre de simulation a effectuer
     tps_simulation : int
         le temps de la simulation 
+    temps : list
+        liste des temsppossible qui peuvent etre prise par les utilisateurs
     cst_tps : int
         le temps d'allumage des lampadaires 
     puissance : int
@@ -182,10 +187,10 @@ def simulation(nbr_simulation:int, tps_simulation:int, cst_tps:int, puissance:in
     """
     simulation = []
     for _ in range(nbr_simulation) : 
-        etape1 = deplacement(tps_simulation, vitesse, nbr_utilisateur)
+        etape1 = deplacement(tps_simulation, temps, vitesse, nbr_utilisateur)
         etape2 = fusion(etape1)
-        etape3 = deplacement_affectation(etape2)
-        etape4 = calcule(tps_simulation, cst_tps, puissance, etape3)
+        etape3 = deplacement_affectation(etape2, etape1)
+        etape4 = calcule(tps_simulation, puissance, cst_tps, etape3)
         simulation.append(etape4)
 
     optimiser_list = [ i[0] for i in simulation]
