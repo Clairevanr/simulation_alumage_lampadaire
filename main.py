@@ -1,110 +1,204 @@
-from random import *
-# pour stocker les valeurs calculer
 import json
+from random import *
+
 with open('lampadaire.json') as json_data:
     lampadaire = json.load(json_data)
-# pour stocker les valeurs calculer
+with open('carte.json') as json_carte:
+    carte = json.load(json_carte)
+    
+Data = { i : {"nb_allumage" : 0, "tps_allumage" : 0} for i in range(len(carte)) } # initialisations de la liste des données 
+start = [ i for i in carte if carte[i]["entree/sortie"] == True ]
+vitesse = [7.2, 54, 72, 90, 108]
+puissance = 70 # en W
+cst_tps = 6 # en s
 
-# constante 
-nbr_lampadaire = 50
-const_tps = 40000 #en ms
-puissance = 70 #en W
-# constante 
-
-Data = { i : {"nb_allumage" : 0, "tps_allumage" : 0} for i in range(nbr_lampadaire) } # initialisations de la liste des données 
-
-def tps_éclairage(const_tps_:int)->int: 
-    """Permet de générer un temps aléatoire de simulation de pour l'allumage des lampadaires 
+def trajet()->list:
+    """Permet de générer le trajet de façon aléatoire d'un utilisateur dans la ville (trajet logique) \n
+    On suppose que les utilisateur vont en avant
 
     Returns
     -------
-    int
-        Renvoie un temps en `ms`
+    list
+        liste de devant quel lampadaire passe chaque utilisateur
     """
-    tps = [3000, 1600, 1200, 960, 800]
-    return (tps[randint(0, len(tps) - 1)] * const_tps_)
+    sens = ""
+    begin = start[randint(0, len(start) - 1)]
+    trajet = [begin]
+    if carte[begin]["avant"][0] == 0 :
+        sens = "arriere"
+    else :
+        sens = "avant"
+    while carte[begin][sens][0] != 0 :
+        mem = begin
+        while begin in trajet :
+            begin = str(carte[mem][sens][randint(0, len(carte[mem][sens]) - 1)])
+        trajet.append(begin)
+    return trajet
 
-def alea_personne(nbr_utilisateur:int, nbr_passage:int, lampadaire_data:dict)->None:
-    """Permet de simuler le comportement aléatoire dun certain nombre d'utilisateur en fonction du nombre de lampadaire
+def trajet_voisin()->list:
+    """Permet de générer le trajet de façon aléatoire d'un utilisateur dans la ville (trajet absurde) \n
+    On suppose un déplacement chaotique des utilisateurs
+
+    Returns
+    -------
+    list
+        liste de devant quel lampadaire passe chaque utilisateur
+    """
+    begin = start[randint(0, len(start) - 1)]
+    trajet = [begin]
+    if carte[begin]["voisins"][0] == 0 :
+        begin = str(carte[begin]["voisins"][1])
+    else :
+        begin = str(carte[begin]["voisins"][0])
+    trajet.append(begin)
+    while 0 not in carte[begin]["voisins"]:
+        begin = str(carte[begin]["voisins"][randint(0, len(carte[begin]["voisins"]) - 1)])
+        trajet.append(begin)
+    return trajet
+
+def deplacement(tps:int, vitesse:list, nbr_utilisateur:int, simulation = trajet())->dict:
+    """Permet de de simuler le deplacement simultane de plusieur utilisateu en meme temps sur un temps donner pour un nombre donné d'utilisateur
 
     Parameters
     ----------
-    nbr : int
+    tps : int
+        le temps de la simulation
+    vitesse : list
+        les vitesse possible entre utilisateur
+    nbr_utilisateur : int
         le nombre d'utilisateur
-    lampadaire_data : dict
-        le dictionnaire qui contiens les donner des lampadaire 
+    simulation : _type_, optional
+        la typed de simulation a effectuer, by default trajet()
 
     Returns
     -------
     dict
-        renvoie le dictionnaire modifier en fonction de l'utilisation des lampadaire 
+        renvoie alors les trajet, les vitesses et le nombre de lampadaire allumable par les utilisateurs
     """
-    for p in range(nbr_passage) :
-        for u in range(nbr_utilisateur) :
-            alea = randint(0, nbr_lampadaire - 1)
-            lampadaire_data[alea]["nb_allumage"] += 1
-            lampadaire_data[alea]["tps_allumage"] += tps_éclairage(const_tps)
+    data = {}
+    for i in range(nbr_utilisateur):
+        vitesse_utilisateur = vitesse[randint(0, len(vitesse) - 1)]
+        trajet_utilisateur = simulation
+        distance_max = vitesse_utilisateur * tps
+        lampadaire_max = round(distance_max / 20)
+        if len(trajet_utilisateur) > lampadaire_max :
+            trajetV2 = [ trajet_utilisateur[i] for i in range(lampadaire_max)]
+            trajet_utilisateur = trajetV2
+        data[i] = {
+            "trajet" : trajet_utilisateur,
+            "vitesse" : vitesse_utilisateur,
+            "lampadaire_max" : lampadaire_max
+        }
+    return data
 
-def consommation_optimiser(puissance:int, data:dict)->float :
-    """Calcule de la consommation avec la méthode optimiser
+def fusion(data:dict)->dict:
+    """Permet de rendre tout les liste de la meme taille pour faciliter la comparaison
 
     Parameters
     ----------
-    puissance : int
-        La puissance du lampadaire étudier 
     data : dict
-        Le dictionnaire qui contient toute les données 
+        les données de déplacement de l'utilisateur (vien de la fonction deplacement)
 
     Returns
     -------
-    float
-        Renvoie la consommation en Wh pour la simulation donnée 
+    dict
+        la liste des déplacement uniformiser 
     """
-    tps = 0
+    data_harmo = {}
+    up = max([ data[i]["lampadaire_max"] for i in data ])
     for i in data :
-        tps += data[i]["tps_allumage"]
-    return (tps/3.6*10**-6) * puissance 
+        data_harmo[i] = data[i]["trajet"]
+        if len(data[i]["trajet"]) < up :
+            rajout = up - len(data[i]["trajet"])
+            for _ in range(rajout) :
+                data_harmo[i].append(0)
+    return data_harmo
 
-def consommation_classique(puissance:int, nbr_lampadaire:int, data:dict)->float :
-    """Calcule de la consommation avec la méthode classique 
+def deplacement_affectation(data:dict)->list:
+    """Permet de renvoyer la liste d'allumage des lamapadaire en prenans en compte le fait qu'il peut y avaoir plusieur utilisateur au meme endroit au meme moment
 
     Parameters
     ----------
-    puissance : int
-        Puissance du lampadaire étudier
-    nbr_lampadaire : int
-        le nombre de lampadaire étudier 
     data : dict
-        Le dictionnaire qui contient toute les données 
+        la liste qui vien de fusion et qui va permettre de mettre tout ensemble
 
     Returns
     -------
-    float
-        Renvoie la consommation en Wh pour la simulation donnée 
+    list
+        la liste avec le nombr d'allumage de chacun des utilisateur
     """
-    tps = max([ data[i]["tps_allumage"] for i in range(len(data)) ])
-    return (tps/3.6*10**-6) * nbr_lampadaire * puissance
+    lampdaire_list = [ 0 for _ in range(len(carte) + 1)] # on compte pas le 0 
+    for i in range(len(data[0])) :
+        for p in range(len(data)) :
+            if int(data[p][i]) != 0 and lampdaire_list[int(data[p][i])] <= i: # le 0 est tjr vide 
+                lampdaire_list[int(data[p][i])] += 1
+    return lampdaire_list
 
-def mise_en_forme(nbr_utilisateur:int, nbr_passage:int, data:dict)->None:
-    """Permet la mise ne forme dans le terminale des réponses 
+def calcule(tps_simulation:int, tps_allumage:int, puissance:int, data:list)->tuple:
+    """Permet le calcule de la consomation
 
     Parameters
     ----------
+    tps_simulation : int
+        temps de la simulation
+    tps_allumage : int
+        temps d'allumage des lamapdaires 
+    puissance : int
+        la puissance des lampadaires
+    data : list
+        les données d'alumage des lamapdaires 
+
+    Returns
+    -------
+    tuple
+        (consomation optimiser , consomation classique)
+    """
+    simulation_optimiser = 0
+    for i in data :
+        simulation_optimiser += i
+    simulation_classic = len(carte)
+    conso_opti = ((tps_allumage*simulation_optimiser)/3600) * puissance 
+    conso_classic = (tps_simulation*simulation_classic) * puissance 
+    return (round(conso_opti), round(conso_classic))
+
+def simulation(nbr_simulation:int, tps_simulation:int, cst_tps:int, puissance:int, vitesse:list, nbr_utilisateur:int, fonction=trajet())->tuple:
+    """Permet de simuler la consomation des lampadaires
+
+    Parameters
+    ----------
+    nbr_simulation : int
+        la nombre de simulation a effectuer
+    tps_simulation : int
+        le temps de la simulation 
+    cst_tps : int
+        le temps d'allumage des lampadaires 
+    puissance : int
+        puissance des lamapdaires
+    vitesse : list
+        vitesse des utilisateur 
     nbr_utilisateur : int
         nombre d'utilisateur
-    nbr_passage : int
-        nombre de passage de chaque utilisateur 
-    data : dict
-        le dictionnaire qui contient toute les données 
+    fonction : _type_, optional
+        la fonction a utiliser pour determiner le trajet des utilisateurs, by default trajet()
+
+    Returns
+    -------
+    tuple
+        renvoie alors la consomation moyenne otimiser et celle classique
     """
-    alea_personne(nbr_utilisateur, nbr_passage, data)
-    print("\n")
-    print(" - Consommation optimiser : " + str(round(consommation_optimiser(puissance, Data))) + "Wh = " + str(round(consommation_optimiser(puissance, Data)*10**-3)) + "kWh")
-    print(" - Consommation classique : " + str(round(consommation_classique(puissance, nbr_lampadaire, Data))) + "Wh = " + str(round(consommation_classique(puissance, nbr_lampadaire, Data)*10**-3)) + "kWh")
-    print(" - Écart : " + str(round((abs(consommation_classique(puissance, nbr_lampadaire, Data) - consommation_optimiser(puissance, Data)) / consommation_classique(puissance, nbr_lampadaire, Data)) * 100)) + "%")
-    print("\n")
-    
-mise_en_forme(30, 10, Data)
-       
-with open('lampadaire.json', 'w') as mon_fichier: # on sauvegarde dans un fichier pour facilité la lecture 
-	json.dump(Data, mon_fichier)
+    simulation = []
+    for _ in range(nbr_simulation) : 
+        etape1 = deplacement(tps_simulation, vitesse, nbr_utilisateur, fonction)
+        etape2 = fusion(etape1)
+        etape3 = deplacement_affectation(etape2)
+        etape4 = calcule(tps_simulation, cst_tps, puissance, etape3)
+        simulation.append(etape4)
+
+    optimiser_list = [ i[0] for i in simulation]
+    classic_list = [ i[1] for i in simulation]
+    moy_opti = sum(optimiser_list)/len(simulation)
+    moy_classic = sum(classic_list)/len(simulation)
+        
+    return (moy_opti, moy_classic)
+
+print(simulation(100, 5, cst_tps, puissance, vitesse, 50))
