@@ -9,17 +9,18 @@ cst_tps = 6 # en s
 
 iteration = 3
 tps_simulation = 12
-nbr_utilisateur = 50
+nbr_utilisateur = 100
 Type = 3
-nbr_allumage = 10
+nbr_allumage = 100
 
-val = simulation(iteration, tps_simulation, temps, cst_tps, puissance, vitesse, nbr_utilisateur, Type, nbr_allumage, 1)
+val = simulation(iteration, tps_simulation, temps, cst_tps, puissance, vitesse, nbr_utilisateur, Type, nbr_allumage, 2)
 val_opti = [ i[0] for i in val["sim"] ]
 val_norm = [ i[1] for i in val["sim"] ]
 
 born_min = min(val_opti) - 5
 born_max = max(val_opti) + 5
 
+# méthode montecarlo
 uopti = (1/(iteration-1)*sum((np.array(val_opti)-val["moy"][0])**2.))**0.5
 
 print("\n")

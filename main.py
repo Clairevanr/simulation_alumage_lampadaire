@@ -38,7 +38,7 @@ def trajet(tps_simulation:int, vitesse:float, type:int = 1, nbr_lampadaire:int =
         sens = "arriere"
     else :
         sens = "avant"
-    if type == 1 :
+    if type == 1 : # deplacement aleatoire 
         trajet_tot = []
         while carte[begin][sens][0] != 0 : # on parcours la carte jusqu'a un point de sortie 
             mem = begin
@@ -46,7 +46,7 @@ def trajet(tps_simulation:int, vitesse:float, type:int = 1, nbr_lampadaire:int =
                 begin = str(carte[mem][sens][randint(0, len(carte[mem][sens]) - 1)])
             trajet.append(begin)
         trajet_tot = trajet[:]
-    elif type == 2 :
+    elif type == 2 : # deplacement contine
         trajet_tot = []
         distance_max = vitesse * tps_simulation # on cacule la distance max que peut parcourire les utilisateur en fonction de leur temps impartie
         lampadaire_max = round(distance_max / 0.02) # on determine le nombre max de lampadaire q'il peuvent allumer en fonction de leur vitesse et du temps de l'expérimentation | on a des lampadaire espacer de 20m = 0,02km 
@@ -62,7 +62,7 @@ def trajet(tps_simulation:int, vitesse:float, type:int = 1, nbr_lampadaire:int =
                 sens = "arriere"
             else :
                 sens = "avant"
-    elif type == 3 :
+    elif type == 3 : # deplacement avec condition
         trajet_tot = []
         while nbr_lampadaire - len(trajet_tot) > 0 :
             while carte[begin][sens][0] != 0 : # on parcours la carte jusqu'a un point de sortie 
@@ -108,7 +108,7 @@ def trajet_voisin(tps_simulation:int, vitesse:float, type:int = 1, nbr_lampadair
     trajet.append(begin)
     mem = trajet[:]
     mem_begin = begin
-    if type == 1 : #
+    if type == 1 : # deplacement aléatoire
         trajet_tot = []
         while len(trajet) < 6 : # 6 et le trajet le plus cours pour sortir
             trajet = mem[:] # on reinitialise avec les valeur par default pour recommencer et on le refait jusqu'a avoir >= 6
@@ -140,8 +140,7 @@ def trajet_voisin(tps_simulation:int, vitesse:float, type:int = 1, nbr_lampadair
             else :
                 begin = str(carte[begin]["voisins"][0])
             trajet.append(begin)
-    
-    elif type == 3 :
+    elif type == 3 : # deplacement avec condition
         
         trajet_tot = []
         while nbr_lampadaire - len(trajet_tot) > 0 : # on vaut un certain nombre deplacement
@@ -200,7 +199,7 @@ def deplacement(tps_simulation:int, temps:list, vitesse:list, nbr_utilisateur:in
         distance_max = vitesse_utilisateur * tps_simulation # on cacule la distance max que peut parcourire les utilisateur en fonction de leur temps impartie
         lampadaire_max = round(distance_max / 0.02) # on determine le nombre max de lampadaire q'il peuvent allumer en fonction de leur vitesse et du temps de l'expérimentation | on a des lampadaire espacer de 20m = 0,02km 
         if len(trajet_utilisateur) > lampadaire_max : # si il y a trop de lampadaire allumer lors du trajet on en retire 
-            trajetV2 = [ trajet_utilisateur[i] for i in range(lampadaire_max)]
+            trajetV2 = [ trajet_utilisateur[i] for i in range(lampadaire_max) ]
             trajet_utilisateur = trajetV2
         data[i] = {
             "trajet" : trajet_utilisateur,
