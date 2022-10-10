@@ -1,5 +1,4 @@
 import json
-from operator import indexOf
 from random import *
 
 with open('carte.json') as json_carte:
@@ -51,9 +50,14 @@ def trajet_voisin()->list:
     else :
         begin = str(carte[begin]["voisins"][0])
     trajet.append(begin)
-    while 0 not in carte[begin]["voisins"]: # on parcoure la carte jusqu'a toruver un point d'arret 
-        begin = str(carte[begin]["voisins"][randint(0, len(carte[begin]["voisins"]) - 1)])
-        trajet.append(begin)
+    mem = trajet[:]
+    mem_begin = begin
+    while len(trajet) < 6 : # 6 et le trajet le plus cours pour sortir
+        trajet = mem[:] # on reinitialise avec les valeur par default pour recommencer et on le refait jusqu'a avoir >= 6
+        begin = mem_begin
+        while 0 not in carte[begin]["voisins"]: # on parcoure la carte jusqu'a toruver un point d'arret 
+            begin = str(carte[begin]["voisins"][randint(0, len(carte[begin]["voisins"]) - 1)])
+            trajet.append(begin)
     return trajet
 
 def deplacement(tps_simulation:int, temps:list, vitesse:list, nbr_utilisateur:int, fonction:int = 1)->dict:
@@ -209,3 +213,5 @@ def simulation(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, 
         "moy" : (moy_opti, moy_classic)
     }
     return rep
+
+print(trajet_voisin())

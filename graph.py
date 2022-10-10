@@ -21,7 +21,7 @@ born_max = max(val_opti) + 5
 uopti = (1/(iteration-1)*sum((np.array(val_opti)-val["moy"][0])**2.))**0.5
 
 print("\n")
-print("Valeur moyenne 1 : \n")
+print("Valeur moyenne : \n")
 print(" - Optimiser : " + str(val["moy"][0]) + "wh")
 print(" - Normale : " + str(val["moy"][1]) + "wh \n")
 print("u(consomation optimiser) = " + str(uopti) + "\n")
