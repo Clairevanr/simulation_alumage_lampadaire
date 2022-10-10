@@ -7,7 +7,7 @@ temps = [3, 1.6, 1.2, 0.96, 0.8] # en s
 puissance = 70 # en W
 cst_tps = 6 # en s
 
-iteration = 3
+iteration = 1000
 tps_simulation = 12
 nbr_utilisateur = 100
 Type = 3

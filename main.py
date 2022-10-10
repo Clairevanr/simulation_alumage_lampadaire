@@ -1,15 +1,37 @@
 import json
-from random import *
+import sys
+import os
+from random import randint
 
 with open('carte.json') as json_carte:
     carte = json.load(json_carte)
     
 Data = { i : {"nb_allumage" : 0, "tps_allumage" : 0} for i in range(len(carte)) } # initialisations de la liste des données 
 start = [ i for i in carte if carte[i]["entree/sortie"] == True ]
-vitesse = [7.2, 54, 72, 90, 108] # en km/h
-temps = [3, 1.6, 1.2, 0.96, 0.8] # en s
-puissance = 70 # en W
-cst_tps = 6 # en s
+
+def progressbar(it, prefix="", size=60, file=sys.stdout):
+    """
+    Il prend un itérable et renvoie un itérable qui imprime une barre de progression à l'écran lorsqu'il
+    parcourt l'itérable d'origine.
+    
+    :param it: l'objet itérable sur lequel vous voulez itérer
+    :param prefix: Le texte à afficher avant la barre de progression
+    :param size: La longueur de la barre de progression en caractères, defaults to 60 (optional)
+    :param file: Le fichier dans lequel écrire la barre de progression. La valeur par défaut est
+    sys.stdout afin qu'il s'imprime à l'écran
+    """
+    count = len(it)
+    def show(j):
+        x = int(size*j/count)
+        file.write("%s[%s%s] %i/%i\r" % (prefix, "#"*x, "."*(size-x), j, count))
+        file.flush()
+        file.write("\n")
+    show(0)
+    for i, item in enumerate(it):
+        yield item
+        show(i+1)
+        file.write("\n")
+    file.flush()
 
 def trajet(tps_simulation:int, vitesse:float, type:int = 1, nbr_lampadaire:int = 0)->list:
     """Permet de générer le trajet de façon aléatoire d'un utilisateur dans la ville (trajet logique) \n
@@ -316,12 +338,13 @@ def simulation(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, 
         renvoie alors la consomation moyenne otimiser et celle classique ainsi que tout les valeur de simmulation. ( { "sim" : [...], "moy" : (.., ..)} )
     """
     simulation = []
-    for _ in range(nbr_simulation) : # on repete au nombre de fois qu'on veux simmuler
+    for _ in progressbar(range(nbr_simulation), "Computing: ", 40) : # on repete au nombre de fois qu'on veux simmuler
         etape1 = deplacement(tps_simulation, temps, vitesse, nbr_utilisateur, type, nbr_lampadaire, fonction)
         etape2 = fusion(etape1)
         etape3 = deplacement_affectation(etape2, etape1)
         etape4 = calcule(tps_simulation, puissance, cst_tps, etape3)
         simulation.append(etape4)
+        os.system('cls' if os.name == 'nt' else 'clear')
 
     optimiser_list = [ i[0] for i in simulation ] # on fait les moyenne 
     classic_list = [ i[1] for i in simulation ]
