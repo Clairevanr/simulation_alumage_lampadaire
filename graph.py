@@ -7,11 +7,11 @@ temps = [3, 1.6, 1.2, 0.96, 0.8] # en s
 puissance = 70 # en W
 cst_tps = 6 # en s
 
-iteration = 5000
+iteration = 1000
 
-val = simulation(iteration, 5, temps, cst_tps, puissance, vitesse, 50)
-val_opti = [ i[0] for i in val["sim"]]
-val_norm = [ i[1] for i in val["sim"]]
+val = simulation(iteration, 5, temps, cst_tps, puissance, vitesse, 50, 1)
+val_opti = [ i[0] for i in val["sim"] ]
+val_norm = [ i[1] for i in val["sim"] ]
 
 born_min = min(val_opti) - 5
 born_max = max(val_opti) + 5

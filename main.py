@@ -56,7 +56,7 @@ def trajet_voisin()->list:
         trajet.append(begin)
     return trajet
 
-def deplacement(tps_simulation:int, temps:list, vitesse:list, nbr_utilisateur:int)->dict:
+def deplacement(tps_simulation:int, temps:list, vitesse:list, nbr_utilisateur:int, fonction:int = 1)->dict:
     """Permet de de simuler le deplacement simultane de plusieur utilisateu en meme temps sur un temps donner pour un nombre donné d'utilisateur
 
     Parameters
@@ -69,6 +69,8 @@ def deplacement(tps_simulation:int, temps:list, vitesse:list, nbr_utilisateur:in
         les vitesse possible entre utilisateur
     nbr_utilisateur : int
         le nombre d'utilisateur
+    fonction : int
+        la fonction a utiliser pour la simulation du trajet. 1-trajet() | 2-trajet_voisin(), par default trajet()
 
     Returns
     -------
@@ -78,7 +80,10 @@ def deplacement(tps_simulation:int, temps:list, vitesse:list, nbr_utilisateur:in
     data = {}
     for i in range(nbr_utilisateur):
         vitesse_utilisateur = vitesse[randint(0, len(vitesse) - 1)]
-        trajet_utilisateur = trajet()
+        if fonction == 1 :
+            trajet_utilisateur = trajet()
+        elif fonction == 2 :
+            trajet_utilisateur = trajet_voisin()
         distance_max = vitesse_utilisateur * tps_simulation
         lampadaire_max = round(distance_max / 20)
         if len(trajet_utilisateur) > lampadaire_max :
@@ -160,7 +165,7 @@ def calcule(tps_simulation:int, puissance:int, cst_tps:int, data:list)->tuple:
     conso_classic = (tps_simulation * simulation_classic) * puissance 
     return (round(conso_opti), round(conso_classic))
 
-def simulation(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, puissance:int, vitesse:list, nbr_utilisateur:int)->dict:
+def simulation(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, puissance:int, vitesse:list, nbr_utilisateur:int, fonction:int = 1)->dict:
     """Permet de simuler la consomation des lampadaires
 
     Parameters
@@ -179,6 +184,8 @@ def simulation(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, 
         vitesse des utilisateur 
     nbr_utilisateur : int
         nombre d'utilisateur
+    fonction : int
+        la fonction a utiliser pour la simulation du trajet. 1-trajet() | 2-trajet_voisin(), par default trajet()
 
     Returns
     -------
@@ -187,7 +194,7 @@ def simulation(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, 
     """
     simulation = []
     for _ in range(nbr_simulation) : 
-        etape1 = deplacement(tps_simulation, temps, vitesse, nbr_utilisateur)
+        etape1 = deplacement(tps_simulation, temps, vitesse, nbr_utilisateur, fonction)
         etape2 = fusion(etape1)
         etape3 = deplacement_affectation(etape2, etape1)
         etape4 = calcule(tps_simulation, puissance, cst_tps, etape3)
