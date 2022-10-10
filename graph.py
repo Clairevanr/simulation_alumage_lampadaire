@@ -7,12 +7,13 @@ temps = [3, 1.6, 1.2, 0.96, 0.8] # en s
 puissance = 70 # en W
 cst_tps = 6 # en s
 
-iteration = 100
+iteration = 3
 tps_simulation = 12
 nbr_utilisateur = 50
-Type = False
+Type = 3
+nbr_allumage = 10
 
-val = simulation(iteration, tps_simulation, temps, cst_tps, puissance, vitesse, nbr_utilisateur, Type, 2)
+val = simulation(iteration, tps_simulation, temps, cst_tps, puissance, vitesse, nbr_utilisateur, Type, nbr_allumage, 1)
 val_opti = [ i[0] for i in val["sim"] ]
 val_norm = [ i[1] for i in val["sim"] ]
 
