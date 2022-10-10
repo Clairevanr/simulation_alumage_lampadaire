@@ -10,8 +10,9 @@ cst_tps = 6 # en s
 iteration = 1000
 tps_simulation = 12
 nbr_utilisateur = 50
+Type = False
 
-val1 = simulation(iteration, tps_simulation, temps, cst_tps, puissance, vitesse, nbr_utilisateur, 1)
+val1 = simulation(iteration, tps_simulation, temps, cst_tps, puissance, vitesse, nbr_utilisateur, Type, 1)
 val_opti1 = [ i[0] for i in val1["sim"] ]
 val_norm1 = [ i[1] for i in val1["sim"] ]
 

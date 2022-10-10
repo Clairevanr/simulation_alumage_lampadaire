@@ -11,9 +11,18 @@ temps = [3, 1.6, 1.2, 0.96, 0.8] # en s
 puissance = 70 # en W
 cst_tps = 6 # en s
 
-def trajet()->list:
+def trajet(tps_simulation:int, vitesse:float, type:bool = False)->list:
     """Permet de générer le trajet de façon aléatoire d'un utilisateur dans la ville (trajet logique) \n
     On suppose que les utilisateur vont en avant ou en arrière (ici on parcour la caret en diagonale)
+
+    Parameters
+    ----------
+    tps_simulation : int
+        le temps de la simulation
+    vitesse : float
+        la vitesse de l'utilisateur 
+    type : bool
+        esque le deplacement est continue ou non ?, par default non
 
     Returns
     -------
@@ -27,17 +36,45 @@ def trajet()->list:
         sens = "arriere"
     else :
         sens = "avant"
-    while carte[begin][sens][0] != 0 : # on parcours la carte jusqu'a un point de sortie 
-        mem = begin
-        while begin in trajet : # si on est deja passe par la on prend un autre point 
-            begin = str(carte[mem][sens][randint(0, len(carte[mem][sens]) - 1)])
-        trajet.append(begin)
-    return trajet
+    if type == False :
+        trajet_tot = []
+        while carte[begin][sens][0] != 0 : # on parcours la carte jusqu'a un point de sortie 
+            mem = begin
+            while begin in trajet : # si on est deja passe par la on prend un autre point 
+                begin = str(carte[mem][sens][randint(0, len(carte[mem][sens]) - 1)])
+            trajet.append(begin)
+        trajet_tot = trajet[:]
+    elif type == True :
+        trajet_tot = []
+        distance_max = vitesse * tps_simulation # on cacule la distance max que peut parcourire les utilisateur en fonction de leur temps impartie
+        lampadaire_max = round(distance_max / 0.02) # on determine le nombre max de lampadaire q'il peuvent allumer en fonction de leur vitesse et du temps de l'expérimentation | on a des lampadaire espacer de 20m = 0,02km 
+        while lampadaire_max - len(trajet_tot) > 0 :
+            while carte[begin][sens][0] != 0 : # on parcours la carte jusqu'a un point de sortie 
+                mem = begin
+                while begin in trajet : # si on est deja passe par la on prend un autre point 
+                    begin = str(carte[mem][sens][randint(0, len(carte[mem][sens]) - 1)])
+                trajet.append(begin)
+            trajet_tot += trajet # on ajoute le trajet au deplacement totale
+            trajet = []
+            if carte[begin]["avant"][0] == 0 : # detection de si on avance ou on va en arrière par rapport au sens de parcours definie par le parametrage de la carte 
+                sens = "arriere"
+            else :
+                sens = "avant"
+    return trajet_tot
 
-def trajet_voisin()->list:
+def trajet_voisin(tps_simulation:int, vitesse:float, type:bool = False)->list:
     """Permet de générer le trajet de façon aléatoire d'un utilisateur dans la ville (trajet absurde) \n
     On suppose un déplacement chaotique des utilisateurs (les utilisateur se deplace comme il veule sans logique)
 
+    Parameters
+    ----------
+    tps_simulation : int
+        le temps de la simulation
+    vitesse : float
+        la vitesse de l'utilisateur 
+    type : bool
+        esque le deplacement est continue ou non ?, par default non
+    
     Returns
     -------
     list
@@ -52,15 +89,42 @@ def trajet_voisin()->list:
     trajet.append(begin)
     mem = trajet[:]
     mem_begin = begin
-    while len(trajet) < 6 : # 6 et le trajet le plus cours pour sortir
-        trajet = mem[:] # on reinitialise avec les valeur par default pour recommencer et on le refait jusqu'a avoir >= 6
-        begin = mem_begin
-        while 0 not in carte[begin]["voisins"]: # on parcoure la carte jusqu'a toruver un point d'arret 
-            begin = str(carte[begin]["voisins"][randint(0, len(carte[begin]["voisins"]) - 1)])
+    if type == False : #
+        trajet_tot = []
+        while len(trajet) < 6 : # 6 et le trajet le plus cours pour sortir
+            trajet = mem[:] # on reinitialise avec les valeur par default pour recommencer et on le refait jusqu'a avoir >= 6
+            begin = mem_begin
+            while 0 not in carte[begin]["voisins"]: # on parcoure la carte jusqu'a toruver un point d'arret 
+                begin = str(carte[begin]["voisins"][randint(0, len(carte[begin]["voisins"]) - 1)])
+                trajet.append(begin)
+        trajet_tot = trajet[:]
+    elif type == True : # deplacement en continue
+         
+        distance_max = vitesse * tps_simulation # on cacule la distance max que peut parcourire les utilisateur en fonction de leur temps impartie
+        lampadaire_max = round(distance_max / 0.02) # on determine le nombre max de lampadaire q'il peuvent allumer en fonction de leur vitesse et du temps de l'expérimentation | on a des lampadaire espacer de 20m = 0,02km 
+        trajet_tot = []
+        while lampadaire_max - len(trajet_tot) > 0 : # on vaut un certain nombre deplacement
+            mem = trajet[:]
+            mem_begin = begin
+            while len(trajet) < 6 : # 6 et le trajet le plus cours pour sortir
+                trajet = mem[:] # on reinitialise avec les valeur par default pour recommencer et on le refait jusqu'a avoir >= 6
+                begin = mem_begin
+                while 0 not in carte[begin]["voisins"]: # on parcoure la carte jusqu'a toruver un point d'arret 
+                    begin = str(carte[begin]["voisins"][randint(0, len(carte[begin]["voisins"]) - 1)])
+                    trajet.append(begin)
+            
+            trajet_tot += trajet # on ajoute le trajet au deplacement totale
+            
+            trajet = []
+            if carte[begin]["voisins"][0] == 0 : # on prend le point qui n'est pas 0 pour continue
+                begin = str(carte[begin]["voisins"][1])
+            else :
+                begin = str(carte[begin]["voisins"][0])
             trajet.append(begin)
-    return trajet
+            
+    return trajet_tot
 
-def deplacement(tps_simulation:int, temps:list, vitesse:list, nbr_utilisateur:int, fonction:int = 1)->dict:
+def deplacement(tps_simulation:int, temps:list, vitesse:list, nbr_utilisateur:int, type:bool = False, fonction:int = 1)->dict:
     """Permet de de simuler le deplacement simultane de plusieur utilisateu en meme temps sur un temps donner pour un nombre donné d'utilisateur
 
     Parameters
@@ -73,6 +137,8 @@ def deplacement(tps_simulation:int, temps:list, vitesse:list, nbr_utilisateur:in
         les vitesse (en km/h) possible entre utilisateur
     nbr_utilisateur : int
         le nombre d'utilisateur
+    type : bool
+        esque le deplacement est continue ou non ?, par default non
     fonction : int
         la fonction a utiliser pour la simulation du trajet. 1-trajet() | 2-trajet_voisin(), par default trajet()
 
@@ -85,9 +151,9 @@ def deplacement(tps_simulation:int, temps:list, vitesse:list, nbr_utilisateur:in
     for i in range(nbr_utilisateur):
         vitesse_utilisateur = vitesse[randint(0, len(vitesse) - 1)] # on choisie une vitesse aléatoire pour l'utilisateur
         if fonction == 1 : # on definie le type de trajet a prendre 
-            trajet_utilisateur = trajet()
+            trajet_utilisateur = trajet(tps_simulation, vitesse_utilisateur, type)
         elif fonction == 2 :
-            trajet_utilisateur = trajet_voisin()
+            trajet_utilisateur = trajet_voisin(tps_simulation, vitesse_utilisateur, type)
         distance_max = vitesse_utilisateur * tps_simulation # on cacule la distance max que peut parcourire les utilisateur en fonction de leur temps impartie
         lampadaire_max = round(distance_max / 0.02) # on determine le nombre max de lampadaire q'il peuvent allumer en fonction de leur vitesse et du temps de l'expérimentation | on a des lampadaire espacer de 20m = 0,02km 
         if len(trajet_utilisateur) > lampadaire_max : # si il y a trop de lampadaire allumer lors du trajet on en retire 
@@ -169,7 +235,7 @@ def calcule(tps_simulation:int, puissance:int, cst_tps:int, data:list)->tuple:
     conso_classic = (tps_simulation * simulation_classic) * puissance 
     return (round(conso_opti), round(conso_classic))
 
-def simulation(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, puissance:int, vitesse:list, nbr_utilisateur:int, fonction:int = 1)->dict:
+def simulation(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, puissance:int, vitesse:list, nbr_utilisateur:int, type:bool = False, fonction:int = 1)->dict:
     """Permet de simuler la consomation des lampadaires
 
     Parameters
@@ -188,6 +254,8 @@ def simulation(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, 
         vitesse des utilisateur 
     nbr_utilisateur : int
         nombre d'utilisateur
+    type : bool
+        esque le deplacement est continue ou non ?, par default non
     fonction : int
         la fonction a utiliser pour la simulation du trajet. 1-trajet() | 2-trajet_voisin(), par default trajet()
 
@@ -198,7 +266,7 @@ def simulation(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, 
     """
     simulation = []
     for _ in range(nbr_simulation) : # on repete au nombre de fois qu'on veux simmuler
-        etape1 = deplacement(tps_simulation, temps, vitesse, nbr_utilisateur, fonction)
+        etape1 = deplacement(tps_simulation, temps, vitesse, nbr_utilisateur, type, fonction)
         etape2 = fusion(etape1)
         etape3 = deplacement_affectation(etape2, etape1)
         etape4 = calcule(tps_simulation, puissance, cst_tps, etape3)
@@ -213,5 +281,3 @@ def simulation(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, 
         "moy" : (moy_opti, moy_classic)
     }
     return rep
-
-print(trajet_voisin())
