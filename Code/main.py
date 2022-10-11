@@ -1,15 +1,16 @@
 import json
 import sys
 import os
+import time
 from random import randint
 
-with open('carte.json') as json_carte:
+with open('./Donnees/carte.json') as json_carte:
     carte = json.load(json_carte)
     
 Data = { i : {"nb_allumage" : 0, "tps_allumage" : 0} for i in range(len(carte)) } # initialisations de la liste des données 
 start = [ i for i in carte if carte[i]["entree/sortie"] == True ]
 
-def progressbar(it, prefix="", size=60, file=sys.stdout):
+def progressbar(it:list, prefix:str = "", size:int = 60, file = sys.stdout):
     """
     Il prend un itérable et renvoie un itérable qui imprime une barre de progression à l'écran lorsqu'il
     parcourt l'itérable d'origine.
@@ -306,7 +307,20 @@ def calcule(tps_simulation:int, puissance:int, cst_tps:int, data:list)->tuple:
     conso_classic = (tps_simulation * simulation_classic) * puissance     
     return (round(conso_opti), round(conso_classic))
 
-def simulation(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, puissance:int, vitesse:list, nbr_utilisateur:int, type:bool = False, nbr_lampadaire:int = 0, fonction:int = 1)->dict:
+def f_save(data:dict, filepath = "./Donnees/save.json")->None:
+    """Permet de sauvegarder les résultats de la simulation et c parametre dans un fichier 
+
+    Parameters
+    ----------
+    data : dict
+        les données a sauvegarder
+    filepath : path, optional
+        le chemin vers le fichier a sauvegarder, by default "save.json"
+    """
+    with open(filepath, 'w') as mon_fichier: # on créer le fichier voulue et on l'enregistre a l'endroit souhaité 
+	    json.dump(data, mon_fichier)
+
+def simulation(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, puissance:int, vitesse:list, nbr_utilisateur:int, type:bool = False, nbr_lampadaire:int = 0, fonction:int = 1, save:bool = False)->dict:
     """Permet de simuler la consomation des lampadaires
 
     Parameters
@@ -331,6 +345,8 @@ def simulation(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, 
         nombre min de lampadaire a allumer (pris en compte qu'avec type = 3), par default 0
     fonction : int
         la fonction a utiliser pour la simulation du trajet. 1-trajet() | 2-trajet_voisin(), par default trajet()
+    save : bool
+        si on sauvegarde ou non les données ?, par defaut non
 
     Returns
     -------
@@ -338,20 +354,37 @@ def simulation(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, 
         renvoie alors la consomation moyenne otimiser et celle classique ainsi que tout les valeur de simmulation. ( { "sim" : [...], "moy" : (.., ..)} )
     """
     simulation = []
-    for _ in progressbar(range(nbr_simulation), "Computing: ", 40) : # on repete au nombre de fois qu'on veux simmuler
+    start = time.time()
+    tps_boucle = []
+    for _ in progressbar(range(nbr_simulation), "Cacule en cours: ", 40) : # on repete au nombre de fois qu'on veux simmuler
+        start_boucle = time.time()
+        
         etape1 = deplacement(tps_simulation, temps, vitesse, nbr_utilisateur, type, nbr_lampadaire, fonction)
         etape2 = fusion(etape1)
         etape3 = deplacement_affectation(etape2, etape1)
         etape4 = calcule(tps_simulation, puissance, cst_tps, etape3)
         simulation.append(etape4)
+        
+        end_boucle = time.time()
+        tps_boucle.append(end_boucle - start_boucle)
         os.system('cls' if os.name == 'nt' else 'clear')
 
     optimiser_list = [ i[0] for i in simulation ] # on fait les moyenne 
     classic_list = [ i[1] for i in simulation ]
     moy_opti = sum(optimiser_list)/len(simulation)
     moy_classic = sum(classic_list)/len(simulation)
+    tps_moy_boule = (sum(tps_boucle) / len(tps_boucle))
+    end = time.time()
+    
     rep = {
         "sim" : simulation,
-        "moy" : (moy_opti, moy_classic)
+        "moy" : (moy_opti, moy_classic),
+        "tps_tot" : end - start,
+        "tps_boucle" : tps_moy_boule
     }
+    
+    if save == True :
+        data = {"rep_simulation" : rep, "parametre" : {"nbr_simulation" : nbr_simulation, "tps_simulation" : tps_simulation, "temps": temps, "cst_tps" : cst_tps, "puissance": puissance, "vitesse": vitesse, "nbr_utilisateur": nbr_utilisateur, "type": type, "nbr_lampadaire": nbr_lampadaire, "fonction": fonction, "save": save}}
+        f_save(data)
+    
     return rep

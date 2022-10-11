@@ -1,4 +1,4 @@
-from main import *
+from Code.main import *
 from matplotlib import pyplot
 import numpy as np
 
@@ -7,13 +7,14 @@ temps = [3, 1.6, 1.2, 0.96, 0.8] # en s
 puissance = 70 # en W
 cst_tps = 6 # en s
 
-iteration = 1000
+iteration = 100
 tps_simulation = 12
 nbr_utilisateur = 100
 Type = 3
 nbr_allumage = 100
+save = True
 
-val = simulation(iteration, tps_simulation, temps, cst_tps, puissance, vitesse, nbr_utilisateur, Type, nbr_allumage, 2)
+val = simulation(iteration, tps_simulation, temps, cst_tps, puissance, vitesse, nbr_utilisateur, Type, nbr_allumage, 2, save)
 val_opti = [ i[0] for i in val["sim"] ]
 val_norm = [ i[1] for i in val["sim"] ]
 
@@ -28,7 +29,10 @@ print("Valeur moyenne : \n")
 print(" - Optimiser : " + str(val["moy"][0]) + "wh")
 print(" - Normale : " + str(val["moy"][1]) + "wh \n")
 print("u(consomation optimiser) = " + str(uopti) + "\n")
-print("Ecart : " + str(((abs(val["moy"][0] - val["moy"][1]) / val["moy"][1]) * 100)) + "%")
+print("Ecart : " + str(((abs(val["moy"][0] - val["moy"][1]) / val["moy"][1]) * 100)) + "%\n")
+print("Temps : \n")
+print(" - Temps totale : " + str(val["tps_tot"]) + "s")
+print(" - Temps boucle : " + str(val["tps_boucle"]) + "s")
 print("\n")
 ##################################################################################################################
 pyplot.hist(val_opti, range = (born_min, born_max), bins = 200, color = 'blue', edgecolor = 'black')

@@ -1,4 +1,4 @@
-from main import *
+from Code.main import *
 from matplotlib import pyplot
 import numpy as np
 
