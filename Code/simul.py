@@ -1,8 +1,10 @@
+"""Permet de simuler le déplacement aléatoire d'utilisateur au seins d'une `carte` afin de déterminer al consomation de ces utilisateur en focntion de leur déplacament (allumage de lampadaire)
+"""
 import json
 import sys
 import os
 import time
-from random import randint
+from random import randint 
 
 with open('./Donnees/carte.json') as json_carte:
     carte = json.load(json_carte)
