@@ -39,7 +39,6 @@ def graph_save(filepath = "./Donnees/save.json")->None:
     print("Ecart : " + str(((abs(val["rep_simulation"]["moy"][0] - val["rep_simulation"]["moy"][1]) / val["rep_simulation"]["moy"][1]) * 100)) + "%\n")
     print("Temps : \n")
     print(" - Temps totale : " + str(val["rep_simulation"]["tps_tot"]) + "s")
-    print(" - Temps boucle : " + str(val["rep_simulation"]["tps_boucle"]) + "s")
     print("\n")
     ##################################################################################################################
     pyplot.hist(val_opti, range = (born_min, born_max), bins = 200, color = 'blue', edgecolor = 'black')

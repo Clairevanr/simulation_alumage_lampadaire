@@ -56,7 +56,6 @@ def graphe1(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, pui
     print("Ecart : " + str(((abs(val["moy"][0] - val["moy"][1]) / val["moy"][1]) * 100)) + "%\n")
     print("Temps : \n")
     print(" - Temps totale : " + str(val["tps_tot"]) + "s")
-    print(" - Temps boucle : " + str(val["tps_boucle"]) + "s")
     print("\n")
     ##################################################################################################################
     pyplot.hist(val_opti, range = (born_min, born_max), bins = 200, color = 'blue', edgecolor = 'black')

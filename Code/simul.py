@@ -1,10 +1,11 @@
 """Permet de simuler le déplacement aléatoire d'utilisateur au seins d'une `carte` afin de déterminer al consomation de ces utilisateur en focntion de leur déplacament (allumage de lampadaire)
 """
 import json
-import sys
 import os
 import time
 from random import randint 
+from threading import Thread
+import sys
 
 with open('./Donnees/carte.json') as json_carte:
     carte = json.load(json_carte)
@@ -14,29 +15,25 @@ start = [ i for i in carte if carte[i]["entree/sortie"] == True ]
 
 chg = " ___  _               _        _    _\n/ __|(_) _ __   _  _ | | __ _ | |_ (_) ___  _ _\n\__ \| || '  \ | || || |/ _` ||  _|| |/ _ \| ' \  _  _  _\n|___/|_||_|_|_| \_,_||_|\__,_| \__||_|\___/|_||_|(_)(_)(_)\n"
 
-def progressbar(it:list, prefix:str = "", size:int = 60, file = sys.stdout):
+
+def updt(total, progress, prefix:str = "Calculs en cours : ", dim:int = 40):
     """
-    Il prend un itérable et renvoie un itérable qui imprime une barre de progression à l'écran lorsqu'il
-    parcourt l'itérable d'origine.
-    
-    :param it: l'objet itérable sur lequel vous voulez itérer
-    :param prefix: Le texte à afficher avant la barre de progression
-    :param size: La longueur de la barre de progression en caractères, defaults to 60 (optional)
-    :param file: Le fichier dans lequel écrire la barre de progression. La valeur par défaut est
-    sys.stdout afin qu'il s'imprime à l'écran
+    Displays or updates a console progress bar.
+
+    Original source: https://stackoverflow.com/a/15860757/1391441
     """
-    count = len(it)
-    def show(j):
-        x = int(size*j/count)
-        file.write("%s[%s%s] %i/%i\r" % (prefix, "#"*x, "."*(size-x), j, count))
-        file.flush()
-        file.write("\n")
-    show(0)
-    for i, item in enumerate(it):
-        yield item
-        show(i+1)
-        file.write("\n")
-    file.flush()
+    etat = progress
+    fin = total
+    barLength, status = dim, ""
+    progress = float(progress) / float(total)
+    if progress >= 1.:
+        progress, status = 1, "\r\n"
+    block = int(round(barLength * progress))
+    text = "\r" + prefix + str(etat) + "/" + str(fin) + " " + "[{}] {:.0f}% {}".format(
+        "#" * block + "." * (barLength - block), round(progress * 100, 0),
+        status)
+    sys.stdout.write(text)
+    sys.stdout.flush()
 
 def trajet(tps_simulation:int, vitesse:float, type:int = 1, nbr_lampadaire:int = 0)->list:
     """Permet de générer le trajet de façon aléatoire d'un utilisateur dans la ville (trajet logique) \n
@@ -324,20 +321,90 @@ def f_save(data:dict, filepath = "./Donnees/save.json")->None:
     with open(filepath, 'w') as mon_fichier: # on créer le fichier voulue et on l'enregistre a l'endroit souhaité 
 	    json.dump(data, mon_fichier)
 
-def time_j(tps:float, nbr:int)->None:
-    """Permet de sauvegarder le temps mis pour la réalisation du porgramme pour etre plus précis plus tard
+######################## Parametre de la simulation ######################## 
+simulation_L = []
+nbr_simulation = 0
+tps_simulation = 0
+temps = 0
+cst_tps = 0
+puissance = 0 
+vitesse = 0
+nbr_utilisateur = 0
+type = 0
+nbr_lampadaire = 0
+fonction = 0
+######################## Parametre de la simulation ######################## 
+
+def modif(nbr_s:int, tps_s:int, tps:list, consttps:int, w:int, vit:list, nbr_u:int, Type:int = 1, nbr_l:int = 0, f:int = 1)->None:
+    """Permet de mettre a jours les variables a utiliser pour la simulation 
 
     Parameters
     ----------
-    tps : float
-        le temps mis pour faire une boucle simulation
-    nbr : int
-        le nombre d'utilisateur
+    nbr_s : int
+        la nombre de simulation a effectuer
+    tps_s : int
+        le temps de la simulation 
+    tps : list
+        liste des temsppossible qui peuvent etre prise par les utilisateurs
+    consttps : int
+        le temps d'allumage des lampadaires 
+    w : int
+        puissance des lamapdaires
+    vit : list
+        vitesse des utilisateur 
+    nbr_u : int
+        nombre d'utilisateur
+    Type : int
+        type de deplacement : 1-deplacement noramale, 2-deplacemnt en saturation du réseau, 3-deplacement avec condition du nbr de deplacement (+ ou - le nombre demander), par default 1
+    nbr_l : int
+        nombre min de lampadaire a allumer (pris en compte qu'avec type = 3), par default 0
+    f : int
+        la fonction a utiliser pour la simulation du trajet. 1-trajet() | 2-trajet_voisin(), par default trajet()
+        
+    Returns
+    -------
+    None
     """
-    with open("./Code/__pycache__/time.json", 'w') as mon_fichier: # on créer le fichier voulue et on l'enregistre a l'endroit souhaité 
-	    json.dump({"tps_b" : tps, "nbr_u": nbr}, mon_fichier)
+    global nbr_simulation
+    nbr_simulation = nbr_s
+    global tps_simulation
+    tps_simulation = tps_s
+    global temps
+    temps = tps
+    global cst_tps
+    cst_tps = consttps
+    global puissance
+    puissance = w
+    global vitesse
+    vitesse = vit
+    global nbr_utilisateur
+    nbr_utilisateur = nbr_u
+    global type
+    type = Type
+    global nbr_lampadaire
+    nbr_lampadaire = nbr_l
+    global fonction
+    fonction = f
     
-def simulation(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, puissance:int, vitesse:list, nbr_utilisateur:int, type:bool = False, nbr_lampadaire:int = 0, fonction:int = 1, save:bool = False)->dict:
+def action(id)->None:
+    """Permet de generer une simulation
+
+    Parameters
+    ----------
+    id : _type_
+        id de la tache effectuer
+
+    Returns
+    -------
+    None
+    """
+    etape1 = deplacement(tps_simulation, temps, vitesse, nbr_utilisateur, type, nbr_lampadaire, fonction)
+    etape2 = fusion(etape1)
+    etape3 = deplacement_affectation(etape2, etape1)
+    etape4 = calcule(tps_simulation, puissance, cst_tps, etape3)
+    simulation_L.append(etape4)
+
+def simulation(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, puissance:int, vitesse:list, nbr_utilisateur:int, type:int = 1, nbr_lampadaire:int = 0, fonction:int = 1, save:bool = False)->dict:
     """Permet de simuler la consomation des lampadaires
 
     Parameters
@@ -370,38 +437,40 @@ def simulation(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, 
     dict
         renvoie alors la consomation moyenne otimiser et celle classique ainsi que tout les valeur de simmulation. ( { "sim" : [...], "moy" : (.., ..)} )
     """
-    simulation = []
     start = time.time()
-    tps_boucle = []
-    for _ in progressbar(range(nbr_simulation), chg + "\nCacule en cours: ", 40) : # on repete au nombre de fois qu'on veux simmuler
-        start_boucle = time.time()
-        
-        etape1 = deplacement(tps_simulation, temps, vitesse, nbr_utilisateur, type, nbr_lampadaire, fonction)
-        etape2 = fusion(etape1)
-        etape3 = deplacement_affectation(etape2, etape1)
-        etape4 = calcule(tps_simulation, puissance, cst_tps, etape3)
-        simulation.append(etape4)
-        
-        end_boucle = time.time()
-        tps_boucle.append(end_boucle - start_boucle)
-        os.system('cls' if os.name == 'nt' else 'clear')
 
-    optimiser_list = [ i[0] for i in simulation ] # on fait les moyenne 
-    classic_list = [ i[1] for i in simulation ]
-    moy_opti = sum(optimiser_list)/len(simulation)
-    moy_classic = sum(classic_list)/len(simulation)
-    tps_moy_boule = (sum(tps_boucle) / len(tps_boucle))
+    print(chg)
+    modif(nbr_simulation, tps_simulation, temps, cst_tps, puissance, vitesse, nbr_utilisateur, type, nbr_lampadaire, fonction)
+    threads = []
+    for i in range(nbr_simulation):
+        t = Thread(target=action, args=(i,))
+        threads.append(t)
+        t.start()
+        updt(nbr_simulation, i + 1, "Initialisation : ")
+    
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print(chg)
+    a = 0
+    for p in threads:
+        p.join()
+        a += 1
+        updt(len(threads), a, "Verification : ")
+        
+
+    optimiser_list = [ i[0] for i in simulation_L ] # on fait les moyenne 
+    classic_list = [ i[1] for i in simulation_L ]
+    moy_opti = sum(optimiser_list)/len(simulation_L)
+    moy_classic = sum(classic_list)/len(simulation_L)
+    
     end = time.time()
     
     rep = {
-        "sim" : simulation,
+        "sim" : simulation_L,
         "moy" : (moy_opti, moy_classic),
         "tps_tot" : end - start,
-        "tps_boucle" : tps_moy_boule
     }
     
     if save == True :
         data = {"rep_simulation" : rep, "parametre" : {"nbr_simulation" : nbr_simulation, "tps_simulation" : tps_simulation, "temps": temps, "cst_tps" : cst_tps, "puissance": puissance, "vitesse": vitesse, "nbr_utilisateur": nbr_utilisateur, "type": type, "nbr_lampadaire": nbr_lampadaire, "fonction": fonction, "save": save}}
         f_save(data) 
-    time_j(tps_moy_boule, nbr_utilisateur)
     return rep

@@ -4,29 +4,15 @@ from Code.graph_save import *
 import os
 import json
 
-with open('./Code/__pycache__/time.json') as file:
-    temps_c = json.load(file)
-
 vitesse = [7.2, 54, 72, 90, 108] # en km/h
 temps = [3, 1.6, 1.2, 0.96, 0.8] # en s1
 
 def F():
     print(" ___                               _\n| _ \ __ _  _ _  __ _  _ __   ___ | |_  _ _  __ _  __ _  ___\n|  _// _` || '_|/ _` || '  \ / -_)|  _|| '_|/ _` |/ _` |/ -_)\n|_|  \__,_||_|  \__,_||_|_|_|\___| \__||_|  \__,_|\__, |\___|\n                                                  |___/")
 
-def estimation(it, nbr_u):
-    tps = ((nbr_u * temps_c["tps_b"]) / temps_c["nbr_u"]) * it
-    if (tps >= 86400) : # j
-        tps = str(round(tps / 86400)) + "j"
-    elif (tps >= 3600) : # h
-        tps = str(round(tps / 3600)) + "h"
-    elif (tps >= 60) : # min
-        tps = str(round(tps / 60)) + "min"
-    else :
-        tps = str(round(tps)) + "s"
-    return tps  
-
 print(" ___  _               _        _    _                 _           _             _                                   _           _____  ___  ___  ___\n/ __|(_) _ __   _  _ | | __ _ | |_ (_) ___  _ _    __| | ___   __| | ___  _ __ | | __ _  __  ___  _ __   ___  _ _  | |_   ___  |_   _||_ _|| _ \| __|\n\__ \| || '  \ | || || |/ _` ||  _|| |/ _ \| ' \  / _` |/ -_) / _` |/ -_)| '_ \| |/ _` |/ _|/ -_)| '  \ / -_)| ' \ |  _| |___|   | |   | | |  _/| _|\n|___/|_||_|_|_| \_,_||_|\__,_| \__||_|\___/|_||_| \__,_|\___| \__,_|\___|| .__/|_|\__,_|\__|\___||_|_|_|\___||_||_| \__|         |_|  |___||_|  |___|\n                                                                         |_|")
 graphe_type = int(input("Quel type de graphique vous voulez : \n 1. Normale \n 2. Double \n 3. A partir d'une sauvegarde \n>>> "))
+
 os.system('cls' if os.name == 'nt' else 'clear')
 F()
 if graphe_type == 1 :
@@ -51,11 +37,7 @@ if graphe_type == 1 :
     F()
     save = bool(input("Activer la sauvegarde ? (True ou False) \n>>> "))
     os.system('cls' if os.name == 'nt' else 'clear')
-    F()
-    yes = input("Temps estimer a : " + estimation(iteration, nbr_utilisateur) + "\nExecute le programme ? (oui/non) \n>>> ")
-    if yes == "oui" :
-        os.system('cls' if os.name == 'nt' else 'clear')
-        graphe1(iteration, tps_simulation, temps, cst_tps, puissance, vitesse, nbr_utilisateur, Type, nbr_allumage, fonction, save)
+    graphe1(iteration, tps_simulation, temps, cst_tps, puissance, vitesse, nbr_utilisateur, Type, nbr_allumage, fonction, save)
 
 elif graphe_type == 2 : 
     puissance = int(input("Puissance = "))
@@ -72,12 +54,9 @@ elif graphe_type == 2 :
         nbr_allumage = int(input("Nombre min de deplacmement = "))
     else :
         nbr_allumage = 0
+
     os.system('cls' if os.name == 'nt' else 'clear')
-    F()
-    yes = input("Temps estimer a : " + estimation(iteration*2, nbr_utilisateur*2) + "\nExecute le programme ? (oui/non) \n>>> ")
-    if yes == "oui" :
-        os.system('cls' if os.name == 'nt' else 'clear')
-        graphe2(iteration, tps_simulation, temps, cst_tps, puissance, vitesse, nbr_utilisateur, Type, nbr_allumage)
+    graphe2(iteration, tps_simulation, temps, cst_tps, puissance, vitesse, nbr_utilisateur, Type, nbr_allumage)
 
 elif graphe_type == 3:
     filepath = input("Chemin vers le fichier de sauvegarde (par default = './Donnees/save.json') : \n>>> ")
