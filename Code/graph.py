@@ -1,6 +1,7 @@
 from Code.simul import *
 from matplotlib import pyplot
 import numpy as np
+import os
 
 def graphe1(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, puissance:int, vitesse:list, nbr_utilisateur:int, type:bool = False, nbr_allumage:int = 0, fonction:int = 1, save:bool = False)->None:
     """Permet de simuler la consomation des lampadaires et de générer un graphique 
@@ -44,8 +45,10 @@ def graphe1(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, pui
 
     # méthode montecarlo
     uopti = (1/(nbr_simulation-1)*sum((np.array(val_opti)-val["moy"][0])**2.))**0.5
+    
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print(" ___                 _  _          _\n| _ \ ___  ___ _  _ | || |_  __ _ | |_  ___\n|   // -_)(_-<| || || ||  _|/ _` ||  _|(_-<\n|_|_\\\___|/__/ \_,_||_| \__|\__,_| \__|/__/\n")
 
-    print("\n")
     print("Valeur moyenne : \n")
     print(" - Optimiser : " + str(val["moy"][0]) + "wh")
     print(" - Normale : " + str(val["moy"][1]) + "wh \n")

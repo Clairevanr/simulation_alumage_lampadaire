@@ -1,6 +1,7 @@
 import json
 from matplotlib import pyplot
 import numpy as np
+import os
 
 def graph_save(filepath = "./Donnees/save.json")->None:
     """Permet de génerer un graphique d'une simulation a partir d'une sauvegarde
@@ -27,8 +28,10 @@ def graph_save(filepath = "./Donnees/save.json")->None:
 
     # méthode montecarlo
     uopti = (1/(iteration-1)*sum((np.array(val_opti)-val["rep_simulation"]["moy"][0])**2.))**0.5
+    
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print(" ___                 _  _          _\n| _ \ ___  ___ _  _ | || |_  __ _ | |_  ___\n|   // -_)(_-<| || || ||  _|/ _` ||  _|(_-<\n|_|_\\\___|/__/ \_,_||_| \__|\__,_| \__|/__/\n")
 
-    print("\n")
     print("Valeur moyenne : \n")
     print(" - Optimiser : " + str(val["rep_simulation"]["moy"][0]) + "wh")
     print(" - Normale : " + str(val["rep_simulation"]["moy"][1]) + "wh \n")
