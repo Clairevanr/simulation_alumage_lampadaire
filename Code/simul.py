@@ -324,6 +324,19 @@ def f_save(data:dict, filepath = "./Donnees/save.json")->None:
     with open(filepath, 'w') as mon_fichier: # on créer le fichier voulue et on l'enregistre a l'endroit souhaité 
 	    json.dump(data, mon_fichier)
 
+def time_j(tps:float, nbr:int)->None:
+    """Permet de sauvegarder le temps mis pour la réalisation du porgramme pour etre plus précis plus tard
+
+    Parameters
+    ----------
+    tps : float
+        le temps mis pour faire une boucle simulation
+    nbr : int
+        le nombre d'utilisateur
+    """
+    with open("./Code/__pycache__/time.json", 'w') as mon_fichier: # on créer le fichier voulue et on l'enregistre a l'endroit souhaité 
+	    json.dump({"tps_b" : tps, "nbr_u": nbr}, mon_fichier)
+    
 def simulation(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, puissance:int, vitesse:list, nbr_utilisateur:int, type:bool = False, nbr_lampadaire:int = 0, fonction:int = 1, save:bool = False)->dict:
     """Permet de simuler la consomation des lampadaires
 
@@ -389,6 +402,6 @@ def simulation(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, 
     
     if save == True :
         data = {"rep_simulation" : rep, "parametre" : {"nbr_simulation" : nbr_simulation, "tps_simulation" : tps_simulation, "temps": temps, "cst_tps" : cst_tps, "puissance": puissance, "vitesse": vitesse, "nbr_utilisateur": nbr_utilisateur, "type": type, "nbr_lampadaire": nbr_lampadaire, "fonction": fonction, "save": save}}
-        f_save(data)
-    
+        f_save(data) 
+    time_j(tps_moy_boule, nbr_utilisateur)
     return rep
