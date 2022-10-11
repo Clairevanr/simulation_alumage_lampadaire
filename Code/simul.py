@@ -12,6 +12,8 @@ with open('./Donnees/carte.json') as json_carte:
 Data = { i : {"nb_allumage" : 0, "tps_allumage" : 0} for i in range(len(carte)) } # initialisations de la liste des données 
 start = [ i for i in carte if carte[i]["entree/sortie"] == True ]
 
+chg = " ___  _               _        _    _\n/ __|(_) _ __   _  _ | | __ _ | |_ (_) ___  _ _\n\__ \| || '  \ | || || |/ _` ||  _|| |/ _ \| ' \  _  _  _\n|___/|_||_|_|_| \_,_||_|\__,_| \__||_|\___/|_||_|(_)(_)(_)\n"
+
 def progressbar(it:list, prefix:str = "", size:int = 60, file = sys.stdout):
     """
     Il prend un itérable et renvoie un itérable qui imprime une barre de progression à l'écran lorsqu'il
@@ -358,7 +360,7 @@ def simulation(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, 
     simulation = []
     start = time.time()
     tps_boucle = []
-    for _ in progressbar(range(nbr_simulation), "Cacule en cours: ", 40) : # on repete au nombre de fois qu'on veux simmuler
+    for _ in progressbar(range(nbr_simulation), chg + "\nCacule en cours: ", 40) : # on repete au nombre de fois qu'on veux simmuler
         start_boucle = time.time()
         
         etape1 = deplacement(tps_simulation, temps, vitesse, nbr_utilisateur, type, nbr_lampadaire, fonction)
