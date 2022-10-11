@@ -40,17 +40,7 @@ def graphe2(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, pui
     born_max1 = max(val_opti1) + 5
 
     # méthode montecarlo
-    uopti = (1/(nbr_simulation-1)*sum((np.array(val_opti1)-val1["moy"][0])**2.))**0.5
-
-    os.system('cls' if os.name == 'nt' else 'clear')
-    print(" ___                 _  _          _\n| _ \ ___  ___ _  _ | || |_  __ _ | |_  ___\n|   // -_)(_-<| || || ||  _|/ _` ||  _|(_-<\n|_|_\\\___|/__/ \_,_||_| \__|\__,_| \__|/__/\n")
-    
-    print("Valeur moyenne 1 : \n")
-    print(" - Optimiser : " + str(val1["moy"][0]) + "wh")
-    print(" - Normale : " + str(val1["moy"][1]) + "wh \n")
-    print("u(consomation optimiser) = " + str(uopti) + "\n")
-    print("Ecart : " + str(((abs(val1["moy"][0] - val1["moy"][1]) / val1["moy"][1]) * 100)) + "%")
-    print("\n")
+    uopti1 = (1/(nbr_simulation-1)*sum((np.array(val_opti1)-val1["moy"][0])**2.))**0.5
     ##################################################################################################################
 
     val2 = simulation(nbr_simulation, tps_simulation, temps, cst_tps, puissance, vitesse, nbr_utilisateur, type, nbr_allumage, 2)
@@ -60,13 +50,24 @@ def graphe2(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, pui
     born_max2 = max(val_opti2) + 5
 
     # méthode montecarlo
-    uopti = (1/(nbr_simulation-1)*sum((np.array(val_opti2)-val2["moy"][0])**2.))**0.5
+    uopti2 = (1/(nbr_simulation-1)*sum((np.array(val_opti2)-val2["moy"][0])**2.))**0.5
+    ##################################################################################################################
+
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print(" ___                 _  _          _\n| _ \ ___  ___ _  _ | || |_  __ _ | |_  ___\n|   // -_)(_-<| || || ||  _|/ _` ||  _|(_-<\n|_|_\\\___|/__/ \_,_||_| \__|\__,_| \__|/__/\n")
+    
+    print("Valeur moyenne 1 : \n")
+    print(" - Optimiser : " + str(val1["moy"][0]) + "wh")
+    print(" - Normale : " + str(val1["moy"][1]) + "wh \n")
+    print("u(consomation optimiser) = " + str(uopti1) + "\n")
+    print("Ecart : " + str(((abs(val1["moy"][0] - val1["moy"][1]) / val1["moy"][1]) * 100)) + "%")
+    print("\n")
 
     print("\n")
     print("Valeur moyenne 2 : \n")
     print(" - Optimiser : " + str(val2["moy"][0]) + "wh")
     print(" - Normale : " + str(val2["moy"][1]) + "wh \n")
-    print("u(consomation optimiser) = " + str(uopti) + "\n")
+    print("u(consomation optimiser) = " + str(uopti2) + "\n")
     print("Ecart : " + str(((abs(val2["moy"][0] - val2["moy"][1]) / val2["moy"][1]) * 100)) + "%")
     print("\n")
     ##################################################################################################################
