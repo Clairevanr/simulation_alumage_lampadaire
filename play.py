@@ -2,10 +2,9 @@ from Code.graph import *
 from Code.graph_comparaison import *
 from Code.graph_save import *
 import os
-import json
 
 vitesse = [7.2, 54, 72, 90, 108] # en km/h
-temps = [3, 1.6, 1.2, 0.96, 0.8] # en s1
+temps = [3, 1.6, 1.2, 0.96, 0.8] # en s
 
 def F():
     print(" ___                               _\n| _ \ __ _  _ _  __ _  _ __   ___ | |_  _ _  __ _  __ _  ___\n|  _// _` || '_|/ _` || '  \ / -_)|  _|| '_|/ _` |/ _` |/ -_)\n|_|  \__,_||_|  \__,_||_|_|_|\___| \__||_|  \__,_|\__, |\___|\n                                                  |___/")
