@@ -1,3 +1,5 @@
+"""Permet de gener un graphqque double pour les 2 type de fonction de calcule de trajet afin de les compares 
+"""
 from Code.simul import *
 from matplotlib import pyplot
 import numpy as np

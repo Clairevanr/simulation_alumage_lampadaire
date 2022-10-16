@@ -1,3 +1,5 @@
+"""Permet de genrer une "interface" dans le terminale pour simplifier l'utilisation de l'ensemble des fonctions qui permet d'effectuer la simulation
+"""
 from Code.graph import *
 from Code.graph_comparaison import *
 from Code.graph_save import *

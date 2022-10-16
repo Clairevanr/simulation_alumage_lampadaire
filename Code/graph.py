@@ -1,3 +1,5 @@
+"""Permet e génerer un graphique a partir d'une simmulation
+"""
 from Code.simul import *
 from matplotlib import pyplot
 import numpy as np

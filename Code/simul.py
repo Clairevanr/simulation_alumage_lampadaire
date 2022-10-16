@@ -1,4 +1,4 @@
-"""Permet de simuler le déplacement aléatoire d'utilisateur au seins d'une `carte` afin de déterminer al consomation de ces utilisateur en focntion de leur déplacament (allumage de lampadaire)
+"""Permet de simuler le déplacement aléatoire d'utilisateur au seins d'une `carte` afin de déterminer la consomation de ces utilisateur en fonction de leur déplacament (allumage de lampadaire)
 """
 import json
 import os
@@ -573,6 +573,6 @@ def simulation(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, 
     }
     
     if save == True :
-        data = {"rep_simulation" : rep, "parametre" : {"nbr_simulation" : nbr_simulation, "tps_simulation" : tps_simulation, "temps": temps, "cst_tps" : cst_tps, "puissance": puissance, "vitesse": vitesse, "nbr_utilisateur": nbr_utilisateur, "type": type, "nbr_lampadaire": nbr_lampadaire, "fonction": fonction, "save": save}}
+        data = {"rep_simulation" : rep, "parametre" : {"nbr_simulation" : nbr_simulation, "tps_simulation" : tps_simulation, "temps": temps, "cst_tps" : cst_tps, "puissance": puissance, "vitesse": vitesse, "nbr_utilisateur": nbr_utilisateur, "type": type, "nbr_lampadaire": nbr_lampadaire, "fonction": fonction, "prob" : proba,  "save": save}}
         f_save(data) 
     return rep

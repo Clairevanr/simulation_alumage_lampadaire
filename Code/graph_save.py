@@ -1,3 +1,5 @@
+"""Permet a partir d'un ficher de sauvegarde `.json` de regénere le résulta de celle-ci
+"""
 import json
 from matplotlib import pyplot
 import numpy as np
