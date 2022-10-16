@@ -1,6 +1,5 @@
 """Permet de simuler le déplacement aléatoire d'utilisateur au seins d'une `carte` afin de déterminer al consomation de ces utilisateur en focntion de leur déplacament (allumage de lampadaire)
 """
-from concurrent.futures import thread
 import json
 import os
 import time
@@ -454,6 +453,7 @@ def simulation(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, 
     print(chg)
     modif(nbr_simulation, tps_simulation, temps, cst_tps, puissance, vitesse, nbr_utilisateur, type, nbr_lampadaire, fonction)
     threads = []
+    updt(nbr_simulation, 0, "Initialisation : ")
     for i in range(nbr_simulation):
         t = Thread(target=simulation_calcule, args=(i,))
         threads.append(t)
@@ -461,8 +461,9 @@ def simulation(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, 
         updt(nbr_simulation, i + 1, "Initialisation : ")
     
     os.system('cls' if os.name == 'nt' else 'clear')
-    print(chg)
     a = 0
+    print(chg)
+    updt(len(threads), a, "Verification : ")
     for p in threads:
         p.join()
         a += 1

@@ -3,7 +3,7 @@ from matplotlib import pyplot
 import numpy as np
 import os
 
-def graph_save(filepath = "./Donnees/save.json")->None:
+def graph_save(filepath:str = "./Donnees/save.json")->None:
     """Permet de génerer un graphique d'une simulation a partir d'une sauvegarde
 
     Parameters
@@ -15,7 +15,7 @@ def graph_save(filepath = "./Donnees/save.json")->None:
     -------
     None
     """
-    with open('./Donnees/save.json') as json_carte:
+    with open(filepath) as json_carte:
         save = json.load(json_carte)
 
     iteration = save["parametre"]["nbr_simulation"]
