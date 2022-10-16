@@ -3,7 +3,7 @@ from matplotlib import pyplot
 import numpy as np
 import os
 
-def graphe1(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, puissance:int, vitesse:list, nbr_utilisateur:int, type:bool = False, nbr_allumage:int = 0, fonction:int = 1, save:bool = False)->None:
+def graphe1(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, puissance:int, vitesse:list, nbr_utilisateur:int, type:bool = False, nbr_allumage:int = 0, fonction:int = 1, prob:list = [1, 10, True], save:bool = False)->None:
     """Permet de simuler la consomation des lampadaires et de générer un graphique 
 
     Parameters
@@ -23,11 +23,13 @@ def graphe1(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, pui
     nbr_utilisateur : int
         nombre d'utilisateur
     type : int
-        type de deplacement : 1-deplacement noramale, 2-deplacemnt en saturation du réseau, 3-deplacement avec condition du nbr de deplacement (+ ou - le nombre demander), par default 1
+        type de deplacement : 1-deplacement noramale, 2-deplacemnt en saturation du réseau, 3-deplacement avec condition du nbr de deplacement (+ ou - le nombre demander), 4-deplacment normale etandu (avec min aleatoire), par default 1
     nbr_allumage : int
         nombre min de lampadaire a allumer (pris en compte qu'avec type = 3), par default 0
     fonction : int
         la fonction a utiliser pour la simulation du trajet. 1-trajet() | 2-trajet_voisin(), par default trajet()
+    prob : list
+        probabiliter que l'utilisateur fasse un arret (devant un lampadaire) ou on aura [ numérateur, denminominateur, activer ou non], par default [1, 10, True]
     save : bool
         si on sauvegarde ou non les données ?, par defaut non
 
@@ -37,7 +39,7 @@ def graphe1(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, pui
         effectue une simulation et genere un graphique
     """
     
-    val = simulation(nbr_simulation, tps_simulation, temps, cst_tps, puissance, vitesse, nbr_utilisateur, type, nbr_allumage, fonction, save)
+    val = simulation(nbr_simulation, tps_simulation, temps, cst_tps, puissance, vitesse, nbr_utilisateur, type, nbr_allumage, fonction, prob, save)
     val_opti = [ i[0] for i in val["sim"] ]
 
     born_min = min(val_opti) - 5

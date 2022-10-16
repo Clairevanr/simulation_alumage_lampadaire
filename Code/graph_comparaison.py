@@ -3,7 +3,7 @@ from matplotlib import pyplot
 import numpy as np
 import os
 
-def graphe2(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, puissance:int, vitesse:list, nbr_utilisateur:int, type:bool = False, nbr_allumage:int = 0)->None:
+def graphe2(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, puissance:int, vitesse:list, nbr_utilisateur:int, type:bool = False, nbr_allumage:int = 0, prob:list = [1, 10, True])->None:
     """Permet de simuler la consomation des lampadaires et de générer un graphique 
 
     Parameters
@@ -23,9 +23,11 @@ def graphe2(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, pui
     nbr_utilisateur : int
         nombre d'utilisateur
     type : int
-        type de deplacement : 1-deplacement noramale, 2-deplacemnt en saturation du réseau, 3-deplacement avec condition du nbr de deplacement (+ ou - le nombre demander), par default 1
+        type de deplacement : 1-deplacement noramale, 2-deplacemnt en saturation du réseau, 3-deplacement avec condition du nbr de deplacement (+ ou - le nombre demander), 4-deplacment normale etandu (avec min aleatoire), par default 1
     nbr_allumage : int
         nombre min de lampadaire a allumer (pris en compte qu'avec type = 3), par default 0
+    prob : list
+        probabiliter que l'utilisateur fasse un arret (devant un lampadaire) ou on aura [ numérateur, denminominateur, activer ou non], par default [1, 10, True]
         
     Returns
     -------
@@ -33,7 +35,7 @@ def graphe2(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, pui
         effectue une simulation et genere un graphique
     """
     
-    val1 = simulation(nbr_simulation, tps_simulation, temps, cst_tps, puissance, vitesse, nbr_utilisateur, type, nbr_allumage, 1)
+    val1 = simulation(nbr_simulation, tps_simulation, temps, cst_tps, puissance, vitesse, nbr_utilisateur, type, nbr_allumage, 1, prob)
     val_opti1 = [ i[0] for i in val1["sim"] ]
 
     born_min1 = min(val_opti1) - 5
@@ -43,7 +45,7 @@ def graphe2(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, pui
     uopti1 = (1/(nbr_simulation-1)*sum((np.array(val_opti1)-val1["moy"][0])**2.))**0.5
     ##################################################################################################################
 
-    val2 = simulation(nbr_simulation, tps_simulation, temps, cst_tps, puissance, vitesse, nbr_utilisateur, type, nbr_allumage, 2)
+    val2 = simulation(nbr_simulation, tps_simulation, temps, cst_tps, puissance, vitesse, nbr_utilisateur, type, nbr_allumage, 2, prob)
     val_opti2 = [ i[0] for i in val2["sim"] ]
 
     born_min2 = min(val_opti2) - 5
