@@ -136,8 +136,9 @@ def trajet(tps_simulation:int, vitesse:float, type:int = 1, nbr_lampadaire:int =
                 sens = "avant"
     elif type == 4 :
         trajet_tot = []
-        nbr_lampadaire = randint(6, 5000)
-        while nbr_lampadaire - len(trajet_tot) > 0 :
+        distance_max = vitesse * tps_simulation # on cacule la distance max que peut parcourire les utilisateur en fonction de leur temps impartie
+        lampadaire_max = abs(randint(6, round(distance_max / 0.02)) - (randint(6, round(distance_max / 0.02))))
+        while lampadaire_max - len(trajet_tot) > 0 :
             while carte[begin][sens][0] != 0 : # on parcours la carte jusqu'a un point de sortie 
                 mem = begin
                 while begin in trajet : # si on est deja passe par la on prend un autre point 
@@ -256,9 +257,10 @@ def trajet_voisin(tps_simulation:int, vitesse:float, type:int = 1, nbr_lampadair
                 begin = str(carte[begin]["voisins"][0])
             trajet.append(begin)         
     elif type == 4 :
-        nbr_lampadaire = randint(6, 5000)
+        distance_max = vitesse * tps_simulation # on cacule la distance max que peut parcourire les utilisateur en fonction de leur temps impartie
+        lampadaire_max = abs(randint(6, round(distance_max / 0.02)) - (randint(6, round(distance_max / 0.02))))
         trajet_tot = []
-        while nbr_lampadaire - len(trajet_tot) > 0 : # on vaut un certain nombre deplacement
+        while lampadaire_max - len(trajet_tot) > 0 : # on vaut un certain nombre deplacement
             mem = trajet[:]
             mem_begin = begin
             while len(trajet) < 6 : # 6 et le trajet le plus cours pour sortir
@@ -280,7 +282,6 @@ def trajet_voisin(tps_simulation:int, vitesse:float, type:int = 1, nbr_lampadair
             else :
                 begin = str(carte[begin]["voisins"][0])
             trajet.append(begin)
-            
     return trajet_tot
 
 def deplacement_calcule(id)->None:

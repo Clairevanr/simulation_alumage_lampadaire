@@ -14,10 +14,10 @@
 * On ne considère pas les ambouteillages ou la saturation du réseau routier
 
 ### Pris en cmpte dans la simulation
-* On prend en compte les diverse vitesse des utilisateur
-* On prend en compte la variations du temps d'allumage des lampadaire en fonction de la vitesse des utilisteur 
-* On prend en compte que les utilisateur puisse etre plusieur sous un lampadaire sans pour compter un nombre d'allumage multiple 
-* On prend en compte la probabiliter qu'un utilisateur puisse s'arrter devant un lampdaire pendant un certain temps
+* Les diverse vitesse des utilisateur
+* La variations du temps d'allumage des lampadaire en fonction de la vitesse des utilisteur 
+* Les utilisateur peuvent etre plusieur sous un lampadaire sans pour compter un nombre d'allumage multiple 
+* La probabiliter qu'un utilisateur puisse s'arrter devant un lampdaire pendant un certain temps
 
 ## Utilisation  
 Explication de commment utiliser le programme. \
@@ -93,7 +93,7 @@ On choisie ici la fonction de calcule du trajet des utilisateur
 > On reprend le principe de la **1.** mais cette fois si on immpose un nombre minimum de lampadaire a allumé. Une fois un premier trajet simulé si il est trop cour on reprend alors de la sortie pour aller vers une autre et on lajoute au trajet existant, on recommence jusqu'a que la longeur du trajet soit supétieur ou égale a la valeur minimum
 
 4. `deplacement aleatoire etandu (avec min aleatoire)`
-> Même système que la **3.** a la différence que la longeur min n'est pas fixé identique pour chaque utilisateur mais diférente. La longeur du trajet est choisie de façon aléatoire entre `6` et `5000` deplacement.
+> Même système que la **3.** a la différence que la longeur min n'est pas fixé identique pour chaque utilisateur mais diférente. La longeur du trajet est choisie de façon aléatoire entre `6` et le nombre max de lampadaire allumable pour le deplacement.
 
 ***
 ### Etape 4 - Arret des utilisateurs
