@@ -5,7 +5,7 @@ from matplotlib import pyplot
 import numpy as np
 import os
 
-def graphe1(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, puissance:int, vitesse:list, nbr_utilisateur:int, type:bool = False, nbr_allumage:int = 0, fonction:int = 1, prob:list = [1, 10, True], save:bool = False)->None:
+def graphe1(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, puissance:int, vitesse:list, nbr_utilisateur:int, type:int = 1, nbr_allumage:int = 0, fonction:int = 1, prob:list = [1, 10, True], save:bool = False)->None:
     """Permet de simuler la consomation des lampadaires et de générer un graphique 
 
     Parameters
@@ -65,5 +65,5 @@ def graphe1(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, pui
     pyplot.hist(val_opti, range = (born_min, born_max), bins = 200, color = 'blue', edgecolor = 'black')
     pyplot.xlabel('consomation (en wh)')
     pyplot.ylabel('effectif')
-    pyplot.title('Pour ' + str(nbr_simulation) + ' iterations - Consomation optimisé')
+    pyplot.title('Pour ' + str(len(val_opti)) + ' iterations - Consomation optimisé')
     pyplot.show()
