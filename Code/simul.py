@@ -12,8 +12,34 @@ with open('./Donnees/carte.json') as json_carte:
     
 Data = { i : {"nb_allumage" : 0, "tps_allumage" : 0} for i in range(len(carte)) } # initialisations de la liste des données 
 start = [ i for i in carte if carte[i]["entree/sortie"] == True ]
+lien_sens = {
+    "N" : ["NO", "NE"],
+    "S" : ["SO", "SE"],
+    "O" : ["NO", "SO"],
+    "E" : ["NE", "SE"],
+    "NO" : ["O", "N"],
+    "NE" : ["N", "E"],
+    "SO" : ["S", "O"],
+    "SE" : ["S", "E"]
+}
+ecart_lampadaire = 20 #en m
 
 chg = " ___  _               _        _    _\n/ __|(_) _ __   _  _ | | __ _ | |_ (_) ___  _ _\n\__ \| || '  \ | || || |/ _` ||  _|| |/ _ \| ' \  _  _  _\n|___/|_||_|_|_| \_,_||_|\__,_| \__||_|\___/|_||_|(_)(_)(_)\n"
+
+# on verifie qu'il n'y a pas d'erreur dans le fichier
+err = []
+for i in carte :
+    for p in ["N", "S", "O", "E", "NO", "NE", "SO", "SE"] :
+        for s in carte[i][p] : 
+            R = s in carte[i]["voisins"] + [0]
+            if R != True :
+                err.append(i)
+if len(err) != 0 :
+    val_err = "|"
+    for i in err :
+        val_err += " " + i + " |"
+    raise SyntaxError("Les données des points suivant sont mal édité : " + val_err)
+# on verifie qu'il n'y a pas d'erreur dans le fichier
 
 ######################## Parametre de la simulation ######################## 
 simulation_L = []
@@ -49,114 +75,6 @@ def updt(total, progress, prefix:str = "Calculs en cours : ", dim:int = 40)->sys
         status)
     sys.stdout.write(text)
     sys.stdout.flush()
-
-def trajet(tps_simulation:int, vitesse:float, type:int = 1, nbr_lampadaire:int = 0, prob:list = [1, 20, True], int:tuple = (1, 5))->list:
-    """Permet de générer le trajet de façon aléatoire d'un utilisateur dans la ville (trajet logique) \n
-    On suppose que les utilisateur vont en avant ou en arrière (ici on parcour la caret en diagonale)
-
-    Parameters
-    ----------
-    tps_simulation : int
-        le temps de la simulation
-    vitesse : float
-        la vitesse de l'utilisateur 
-    type : int
-        type de deplacement : 1-deplacement noramale, 2-deplacemnt en saturation du réseau, 3-deplacement avec condition du nbr de deplacement (+ ou - le nombre demander) 4-deplacment anormale accentuer avec min aleatoire, par default 1
-    nbr_lampadaire : int
-        nombre min de lampadaire a allumer (pris en compte qu'avec type = 3), par default 0
-    prob : list
-        probabiliter que l'utilisateur fasse un arret (devant un lampadaire) ou on aura [ numérateur, denminominateur, activer ou non], par default [1, 10, True]
-    int : tuple 
-        intervalle d'essaie de pause (on essaie de rester un maxium devant le lampadaire, attention la valuer d'essaie est aléatoire et la prise en compte aussi)
-    
-    Returns
-    -------
-    list
-        liste de devant quel lampadaire passe chaque utilisateur
-    """
-    sens = "" # on definie le sens dans le quel on va rouler
-    begin = start[randint(0, len(start) - 1)] # on choisie un point de départ de façon aléatoire 
-    trajet = [begin] # on ajoute le point de depart au trajet 
-    if carte[begin]["avant"][0] == 0 : # detection de si on avance ou on va en arrière par rapport au sens de parcours definie par le parametrage de la carte 
-        sens = "arriere"
-    else :
-        sens = "avant"
-    if type == 1 : # deplacement aleatoire 
-        trajet_tot = []
-        while carte[begin][sens][0] != 0 : # on parcours la carte jusqu'a un point de sortie 
-            mem = begin
-            while begin in trajet : # si on est deja passe par la on prend un autre point 
-                begin = str(carte[mem][sens][randint(0, len(carte[mem][sens]) - 1)])
-            trajet.append(begin)
-            if prob[2] == True :
-                for _ in range(randint(int[0], int[1])) :
-                    arret = randint(1, prob[1])
-                    if arret <= prob[0]:
-                        trajet.append(begin)
-        trajet_tot = trajet[:]
-    elif type == 2 : # deplacement contine
-        trajet_tot = []
-        distance_max = vitesse * tps_simulation # on cacule la distance max que peut parcourire les utilisateur en fonction de leur temps impartie
-        lampadaire_max = round(distance_max / 0.02) # on determine le nombre max de lampadaire q'il peuvent allumer en fonction de leur vitesse et du temps de l'expérimentation | on a des lampadaire espacer de 20m = 0,02km 
-        while lampadaire_max - len(trajet_tot) > 0 :
-            while carte[begin][sens][0] != 0 : # on parcours la carte jusqu'a un point de sortie 
-                mem = begin
-                while begin in trajet : # si on est deja passe par la on prend un autre point 
-                    begin = str(carte[mem][sens][randint(0, len(carte[mem][sens]) - 1)])
-                trajet.append(begin)
-                if prob[2] == True :
-                    for _ in range(randint(int[0], int[1])) :
-                        arret = randint(1, prob[1])
-                        if arret <= prob[0]:
-                            trajet.append(begin)
-            trajet_tot += trajet # on ajoute le trajet au deplacement totale
-            trajet = []
-            if carte[begin]["avant"][0] == 0 : # detection de si on avance ou on va en arrière par rapport au sens de parcours definie par le parametrage de la carte 
-                sens = "arriere"
-            else :
-                sens = "avant"
-    elif type == 3 : # deplacement avec condition
-        trajet_tot = []
-        while nbr_lampadaire - len(trajet_tot) > 0 :
-            while carte[begin][sens][0] != 0 : # on parcours la carte jusqu'a un point de sortie 
-                mem = begin
-                while begin in trajet : # si on est deja passe par la on prend un autre point 
-                    begin = str(carte[mem][sens][randint(0, len(carte[mem][sens]) - 1)])
-                trajet.append(begin)
-                if prob[2] == True :
-                    for _ in range(randint(int[0], int[1])) :
-                        arret = randint(1, prob[1])
-                        if arret <= prob[0]:
-                            trajet.append(begin)
-            trajet_tot += trajet # on ajoute le trajet au deplacement totale
-            trajet = []
-            if carte[begin]["avant"][0] == 0 : # detection de si on avance ou on va en arrière par rapport au sens de parcours definie par le parametrage de la carte 
-                sens = "arriere"
-            else :
-                sens = "avant"
-    elif type == 4 :
-        trajet_tot = []
-        distance_max = vitesse * tps_simulation # on cacule la distance max que peut parcourire les utilisateur en fonction de leur temps impartie
-        lampadaire_max = abs(randint(6, round(distance_max / 0.02)) - (randint(6, round(distance_max / 0.02))))
-        while lampadaire_max - len(trajet_tot) > 0 :
-            while carte[begin][sens][0] != 0 : # on parcours la carte jusqu'a un point de sortie 
-                mem = begin
-                while begin in trajet : # si on est deja passe par la on prend un autre point 
-                    begin = str(carte[mem][sens][randint(0, len(carte[mem][sens]) - 1)])
-                trajet.append(begin)
-                if prob[2] == True :
-                    for _ in range(randint(int[0], int[1])) :
-                        arret = randint(1, prob[1])
-                        if arret <= prob[0]:
-                            trajet.append(begin)
-            trajet_tot += trajet # on ajoute le trajet au deplacement totale
-            trajet = []
-            if carte[begin]["avant"][0] == 0 : # detection de si on avance ou on va en arrière par rapport au sens de parcours definie par le parametrage de la carte 
-                sens = "arriere"
-            else :
-                sens = "avant"
-    
-    return trajet_tot
 
 def trajet_voisin(tps_simulation:int, vitesse:float, type:int = 1, nbr_lampadaire:int = 0, prob:list = [1, 20, True])->list:
     """Permet de générer le trajet de façon aléatoire d'un utilisateur dans la ville (trajet absurde) \n
@@ -284,75 +202,131 @@ def trajet_voisin(tps_simulation:int, vitesse:float, type:int = 1, nbr_lampadair
             trajet.append(begin)
     return trajet_tot
 
-def trajet_s(tps_simulation:int, vitesse:float, prob:list = [1, 20, True], int:tuple = (1, 5))->list:
-    """Permet de simuler une deplacement logique d'un utilisateur dans une carte
+def trajet(tps_simulation:int, vitesse:float, prob:list = [1, 20, True], int:tuple = (1, 5))->list:
+    """Permet de simulter le deplacment d'un utilisateur suivant une direction
 
-    Parameters
+    Parametres
     ----------
     tps_simulation : int
-        temps de la simualtion a effectuer
+        temps de la simulation
     vitesse : float
-        La vitesse de l'utilisateur
-    prob : list, optional
-        la probabiliter que l'utilisateur s'arret devant un lampadaire (exemple : pour 1/10 => [1, 10, [On active ou non : bool]]), by default [1, 20, True]
-    int : tuple, optional
-        La plage d'assaie pour l'arrte des utilisateur s devant les lampadaires, by default (1, 5)
+        vitesse de l'utilisateur 
+    prob : list, optionnel 
+        porbabiliter que l'utilisateur s'arret devant un lampadaire (1/10 => [1, 10, "si on active ou pas : bool"]), par defaut [1, 20, True]
+    int : tuple, optionnel 
+        le nombre de tentative pour réaliser la probabiliter ("de" , "à"), par defaut (1, 5)
 
-    Returns
-    -------
+    Renvoies
+    --------
     list
-        le trajet de l'utilisateur simuler
+        renvoie la liste des lampadaire a allumer
     """
-    
-    def next(L:list, a:int)->list:
-        """Permet de renvoyer le prochaine lampadaire qui va être attein
+
+    def next(A:str)->str:
+        """Permet de donner le prochain lampadaire qui sera allumer
 
         Parameters
         ----------
-        L : list
-            la liste a mélanger
-        a : int
-            le lampadaire au quel on va effectuer la recherche
+        A : str
+            le lampadaire ou on se trouve
 
         Returns
         -------
-        list
-            le lampadaire suivant 
+        str
+            le prochain lampdaire
         """
-        T = L[:]
-        shuffle(T)
-        for i in T :
-            if carte[a][i][0] != 0 :
-                return str(carte[a][i][randint(0, len(carte[a][i]) - 1)])
-        return "0"
-
-    sens = ["N", "S", "O", "E", "NO", "NE", "SO", "SE"] # on definie le sens dans le quel on va rouler
-    begin = start[randint(0, len(start) - 1)] # on choisie un point de départ de façon aléatoire 
-    trajet = [begin] # on ajoute le point de depart au trajet 
-    begin = next(sens, begin)
+        N = carte[A][orientation][randint(0, len(carte[A][orientation]) - 1)]
+        if N == 0 :
+            R = lien_sens[orientation][:]
+            shuffle(R)
+            for i in R :
+                N = carte[A][i][randint(0, len(carte[A][i]) - 1)]
+                if N != 0 :
+                    return str(N)
+            if N == 0 : 
+                B = [ p for i in ["N", "S", "O", "E", "NO", "NE", "SO", "SE"] for p in carte[A][i] if p != 0]
+                N = B[randint(0, len(B) - 1)]
+                return str(N)
+        else :
+            return str(N)
+    
+    sens = ["N", "S", "O", "E", "NO", "NE", "SO", "SE"]
+    orientation = sens[randint(0, len(start) - 1)]
+    begin = start[randint(0, len(start) - 1)]
+    trajet = [begin]
+    begin = next(begin)
     trajet.append(begin)
     
     trajet_tot = []
     distance_max = vitesse * tps_simulation # on cacule la distance max que peut parcourire les utilisateur en fonction de leur temps impartie
-    lampadaire_max = round(distance_max / 0.02) # on determine le nombre max de lampadaire q'il peuvent allumer en fonction de leur vitesse et du temps de l'expérimentation | on a des lampadaire espacer de 20m = 0,02km 
+    lampadaire_max = round(distance_max / 0.02)
     while lampadaire_max - len(trajet_tot) > 0 :
-        while carte[begin]["entree/sortie"] == False : # on parcours la carte jusqu'a un point de sortie 
-            while begin in trajet : # si on est deja passe par la on prend un autre point 
-                begin = next(sens, begin)
+        while carte[begin]["entree/sortie"] == False :
+            mem = begin
+            i = 0
+            while begin in trajet :
+                begin = next(mem)
+                i += 1
+                if i >= 10 :
+                    break
             trajet.append(begin)
             if prob[2] == True :
                 for _ in range(randint(int[0], int[1])) :
                     arret = randint(1, prob[1])
                     if arret <= prob[0]:
                         trajet.append(begin)
-        trajet_tot += trajet # on ajoute le trajet au deplacement totale
-        begin = start[randint(0, len(start) - 1)] # on choisie un point de départ de façon aléatoire 
+        trajet_tot += trajet
+        begin = start[randint(0, len(start) - 1)]
         trajet = [begin]
-        begin = next(sens, begin)
+        begin = next(begin)
         trajet.append(begin)
-        
+        orientation = sens[randint(0, len(start) - 1)]
     return trajet_tot
 
+def adaptation(trajet:list, vitesse:float, tps_simulation:int)->list:
+    """Permet de lier la vitesse de l'utilisateur a son deplacment ainsi qu'a sa vitesse, on cosidère une liste ou chaque element représente 0.5s
+
+    Parametres
+    ----------
+    trajet : list
+        la list du trajet de l'utilisateur
+    vitesse : float
+        la vitesse de l'utilisateur
+    tps_simulation : int
+        le temps de la simulation 
+
+    Renvoies
+    --------
+    list
+        list a vec les nouveau parametre pris en compte 
+
+    Exceptions
+    ----------
+    ValueError
+       3.6 <= vitesse <= 200 (en km/h), pour pouvoir réaliser le calcule
+    """
+    if vitesse < 3.6 :
+        raise ValueError("La vitesse est bien trop petite pour réaliser le calcule (vitesse_min = 3.6km/h)")
+    if vitesse > 200 :
+        raise ValueError("La vitesse est bien trop élever pour réaliser le calcule (vitesse_max = 130km/h, la résolution des calcules limite la vitesse max)")
+    A = [ 0 for _ in range(round((0.25 * tps_simulation) / 6.94444e-5)) ] # pas de 0.1s pour le niveau de precision on a donc une vitesse max de 130km/h | pour la formule il sagit d'un produit en croix
+    V = round(20/((vitesse / 3.6) * 0.25)) # on a ici le nombre de point a parcourire avant d'allumer un lampadaire | on passe la vitesse pour 0.1s | pour la formule il sagit d'un produit en croix
+    r = 0
+    j = 0
+    z = 0
+    for i in range(len(A)) :
+        r += 1
+        if r == V :
+            b = 0
+            if j < len(trajet) :
+                b = trajet[j]
+                z = i
+            A[i] += int(b)
+            j += 1
+            r = 0
+    A = [ A[i] for i in range(len(A)) if i <= z ]
+    return A
+    
 def deplacement_calcule(id)->None:
     """Permet le calcule du deplacmement
 
@@ -361,12 +335,13 @@ def deplacement_calcule(id)->None:
     id : _type_
         id de l'utilisateur
     """
+    
     global Data_d
     vitesse_utilisateur = vitesse[randint(0, len(vitesse) - 1)] # on choisie une vitesse aléatoire pour l'utilisateur
     if fonction == 1 : # on definie le type de trajet a prendre 
-        trajet_utilisateur = trajet(tps_simulation, vitesse_utilisateur, type, nbr_lampadaire, prob)
+        trajet_utilisateur = adaptation(trajet(tps_simulation, vitesse_utilisateur, prob), vitesse_utilisateur, tps_simulation)
     elif fonction == 2 :
-        trajet_utilisateur = trajet_voisin(tps_simulation, vitesse_utilisateur, type, nbr_lampadaire, prob)
+        trajet_utilisateur = adaptation(trajet_voisin(tps_simulation, vitesse_utilisateur, type, nbr_lampadaire, prob), vitesse_utilisateur, tps_simulation)
     distance_max = vitesse_utilisateur * tps_simulation # on cacule la distance max que peut parcourire les utilisateur en fonction de leur temps impartie
     lampadaire_max = round(distance_max / 0.02) # on determine le nombre max de lampadaire q'il peuvent allumer en fonction de leur vitesse et du temps de l'expérimentation | on a des lampadaire espacer de 20m = 0,02km 
     if len(trajet_utilisateur) > lampadaire_max : # si il y a trop de lampadaire allumer lors du trajet on en retire 
