@@ -42,23 +42,19 @@ graphe_type = int(input("Quel type de graphique vous voulez : \n 1. Normale \n 2
 os.system('cls' if os.name == 'nt' else 'clear')
 F()
 if graphe_type == 1 :
-    puissance = int(input("Puissance = "))
-    cst_tps = int(input("Constante de temps = "))
+    puissance = int(input("Puissance (en W) = "))
+    if puissance == 0 :
+        raise ValueError("La puissance ne peut pas être égale a 0")
+    cst_tps = int(input("Constante de temps (en s) = "))
     iteration = int(input("Nombre de simulation = "))
-    tps_simulation = int(input("Temps de la simulation = "))
+    if iteration < 2 :
+        raise ValueError("Le nombre de simulation est bien trop bas (min = 2)")
+    tps_simulation = int(input("Temps de la simulation (en h) = "))
+    if tps_simulation == 0 :
+        raise ValueError("Le temps de simulation ne peut pas être égale a 0")
     nbr_utilisateur = int(input("Nombre d'utilisateur = "))
-    os.system('cls' if os.name == 'nt' else 'clear')
-    F()
-    fonction = int(input("Methode de calcule du trajet : \n 1. Logique \n 2. Chaotique \n>>> "))
-    os.system('cls' if os.name == 'nt' else 'clear')
-    F()
-    Type = int(input("Type de trajet : \n 1. Aléatoire \n 2. Deplacement en continue (saturation) \n 3. Avec minimum de deplacmement \n 4. deplacement aleatoire etandu (avec min aleatoire) \n>>> "))
-    os.system('cls' if os.name == 'nt' else 'clear')
-    F()
-    if Type == 3 :
-        nbr_allumage = int(input("Nombre min de deplacmement = "))
-    else :
-        nbr_allumage = 0
+    if tps_simulation == 0 :
+        raise ValueError("Le nombre d'utilisateur ne peut pas être égale a 0")
     os.system('cls' if os.name == 'nt' else 'clear')
     F()
     arret = input("Activer la fonction d'arret des utilisateur devant les lampadaires ? (o|n)\n>>> ")
@@ -78,14 +74,22 @@ if graphe_type == 1 :
     else :
         save = False
     os.system('cls' if os.name == 'nt' else 'clear')
-    graphe1(iteration, tps_simulation, temps, cst_tps, puissance, vitesse, nbr_utilisateur, Type, nbr_allumage, fonction, proba, save)
+    graphe1(iteration, tps_simulation, temps, cst_tps, puissance, vitesse, nbr_utilisateur, 1, 0, 1, proba, save)
 
 elif graphe_type == 2 : 
-    puissance = int(input("Puissance = "))
-    cst_tps = int(input("Constante de temps = "))
+    puissance = int(input("Puissance (en W) = "))
+    if puissance == 0 :
+        raise ValueError("La puissance ne peut pas être égale a 0")
+    cst_tps = int(input("Constante de temps (en s) = "))
     iteration = int(input("Nombre de simulation = "))
-    tps_simulation = int(input("Temps de la simulation = "))
+    if iteration < 2 :
+        raise ValueError("Le nombre de simulation est bien trop bas (min = 2)")
+    tps_simulation = int(input("Temps de la simulation (en h) = "))
+    if tps_simulation == 0 :
+        raise ValueError("Le temps de simulation ne peut pas être égale a 0")
     nbr_utilisateur = int(input("Nombre d'utilisateur = "))
+    if tps_simulation == 0 :
+        raise ValueError("Le nombre d'utilisateur ne peut pas être égale a 0")
     os.system('cls' if os.name == 'nt' else 'clear')
     F()
     Type = int(input("Type de trajet : \n 1. Aléatoire \n 2. Deplacement en continue (saturation) \n 3. Avec minimum de deplacmement \n>>> "))
