@@ -5,7 +5,7 @@ from matplotlib import pyplot
 import numpy as np
 import os
 
-def graphe2(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, puissance:int, vitesse:list, nbr_utilisateur:int, type:bool = False, nbr_allumage:int = 0, prob:list = [1, 10, True])->None:
+def graphe2(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, puissance:int, vitesse:list, nbr_utilisateur:int, type:int = 1, nbr_allumage:int = 0, prob:list = [1, 10, True])->None:
     """Permet de simuler la consomation des lampadaires et de générer un graphique 
 
     Parameters
@@ -84,11 +84,11 @@ def graphe2(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, pui
     axes = figure.add_subplot(2, 1, 1)
     axes.set_xlabel('consomation (en wh)')
     axes.set_ylabel('effectif')
-    axes.set_title('Consomation des lamapdaires par la méthode trajet() - Pour ' + str(nbr_simulation) + ' iterations')
+    axes.set_title('Consomation des lamapdaires par la méthode trajet() - Pour ' + str(len(val_opti1)) + ' iterations')
     axes.hist(val_opti1, range = (born_min, born_max), bins = 200, color = 'blue', edgecolor = 'black')
     axes = figure.add_subplot(2, 1, 2)
     axes.set_xlabel('consomation (en wh)')
     axes.set_ylabel('effectif')
-    axes.set_title('Consomation des lamapdaires par la méthode trajet_voisins() - Pour ' + str(nbr_simulation) + ' iterations')
+    axes.set_title('Consomation des lamapdaires par la méthode trajet_voisins() - Pour ' + str(len(val_opti2)) + ' iterations')
     axes.hist(val_opti2, range = (born_min, born_max), bins = 200, color = 'red', edgecolor = 'black')
     pyplot.show()
