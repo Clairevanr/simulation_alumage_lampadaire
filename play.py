@@ -5,21 +5,18 @@ from Code.graph_comparaison import *
 from Code.graph_save import *
 import os
 
-vitesse = [7.2, 54, 72, 90, 108] # en km/h
-temps = [3, 1.6, 1.2, 0.96, 0.8] # en s
-
 def F():
     print(" ___                               _\n| _ \ __ _  _ _  __ _  _ __   ___ | |_  _ _  __ _  __ _  ___\n|  _// _` || '_|/ _` || '  \ / -_)|  _|| '_|/ _` |/ _` |/ -_)\n|_|  \__,_||_|  \__,_||_|_|_|\___| \__||_|  \__,_|\__, |\___|\n                                                  |___/")
 
 def lecture(a:str)->tuple:
     """Convertie un str `A/B` en `(a,b)`
 
-    Parameters
+    Parametres
     ----------
     a : str
         le str sous dorme `a/b`
 
-    Returns
+    Renvoies
     -------
     tuple
         `(int(a), int(b))`
@@ -53,8 +50,6 @@ if graphe_type == 1 :
     if tps_simulation == 0 :
         raise ValueError("Le temps de simulation ne peut pas être égale a 0")
     nbr_utilisateur = int(input("Nombre d'utilisateur = "))
-    if tps_simulation == 0 :
-        raise ValueError("Le nombre d'utilisateur ne peut pas être égale a 0")
     os.system('cls' if os.name == 'nt' else 'clear')
     F()
     arret = input("Activer la fonction d'arret des utilisateur devant les lampadaires ? (o|n)\n>>> ")
@@ -74,9 +69,9 @@ if graphe_type == 1 :
     else :
         save = False
     os.system('cls' if os.name == 'nt' else 'clear')
-    graphe1(iteration, tps_simulation, temps, cst_tps, puissance, vitesse, nbr_utilisateur, 1, 0, 1, proba, save)
+    graphe1(iteration, tps_simulation, cst_tps, puissance, nbr_utilisateur, 1, 0, 1, proba, save)
 
-elif graphe_type == 2 : 
+elif graphe_type == 2 :
     puissance = int(input("Puissance (en W) = "))
     if puissance == 0 :
         raise ValueError("La puissance ne peut pas être égale a 0")
@@ -88,8 +83,6 @@ elif graphe_type == 2 :
     if tps_simulation == 0 :
         raise ValueError("Le temps de simulation ne peut pas être égale a 0")
     nbr_utilisateur = int(input("Nombre d'utilisateur = "))
-    if tps_simulation == 0 :
-        raise ValueError("Le nombre d'utilisateur ne peut pas être égale a 0")
     os.system('cls' if os.name == 'nt' else 'clear')
     F()
     Type = int(input("Type de trajet : \n 1. Aléatoire \n 2. Deplacement en continue (saturation) \n 3. Avec minimum de deplacmement \n>>> "))
@@ -112,7 +105,7 @@ elif graphe_type == 2 :
         proba = [1, 10, False]
 
     os.system('cls' if os.name == 'nt' else 'clear')
-    graphe2(iteration, tps_simulation, temps, cst_tps, puissance, vitesse, nbr_utilisateur, Type, nbr_allumage, proba)
+    graphe2(iteration, tps_simulation, cst_tps, puissance, nbr_utilisateur, Type, nbr_allumage, proba)
 
 elif graphe_type == 3:
     filepath = input("Chemin vers le fichier de sauvegarde (par default = './Donnees/save.json') : \n>>> ")

@@ -5,10 +5,10 @@ from matplotlib import pyplot
 import numpy as np
 import os
 
-def graphe1(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, puissance:int, vitesse:list, nbr_utilisateur:int, type:int = 1, nbr_allumage:int = 0, fonction:int = 1, prob:list = [1, 10, True], save:bool = False)->None:
+def graphe1(nbr_simulation:int, tps_simulation:int, cst_tps:int, puissance:int, nbr_utilisateur:int, type:int = 1, nbr_allumage:int = 0, fonction:int = 1, prob:list = [1, 10, True], save:bool = False)->None:
     """Permet de simuler la consomation des lampadaires et de générer un graphique 
 
-    Parameters
+    Parametres
     ----------
     nbr_simulation : int
         la nombre de simulation a effectuer
@@ -35,13 +35,13 @@ def graphe1(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, pui
     save : bool
         si on sauvegarde ou non les données ?, par defaut non
 
-    Returns
+    Renvoies
     -------
     None
         effectue une simulation et genere un graphique
     """
     
-    val = simulation(nbr_simulation, tps_simulation, temps, cst_tps, puissance, vitesse, nbr_utilisateur, type, nbr_allumage, fonction, prob, save)
+    val = simulation(nbr_simulation, tps_simulation, cst_tps, puissance, nbr_utilisateur, type, nbr_allumage, fonction, prob, save)
     val_opti = [ i[0] for i in val["sim"] ]
 
     born_min = min(val_opti) - 5
@@ -65,5 +65,6 @@ def graphe1(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, pui
     pyplot.hist(val_opti, range = (born_min, born_max), bins = 200, color = 'blue', edgecolor = 'black')
     pyplot.xlabel('consomation (en wh)')
     pyplot.ylabel('effectif')
+    pyplot.title('Pour ' + str(len(val_opti)) + ' iterations - Consomation optimisé')
     pyplot.title('Pour ' + str(len(val_opti)) + ' iterations - Consomation optimisé')
     pyplot.show()

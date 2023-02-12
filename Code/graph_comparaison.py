@@ -5,10 +5,10 @@ from matplotlib import pyplot
 import numpy as np
 import os
 
-def graphe2(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, puissance:int, vitesse:list, nbr_utilisateur:int, type:int = 1, nbr_allumage:int = 0, prob:list = [1, 10, True])->None:
+def graphe2(nbr_simulation:int, tps_simulation:int, cst_tps:int, puissance:int, nbr_utilisateur:int, type:int = 1, nbr_allumage:int = 0, prob:list = [1, 10, True])->None:
     """Permet de simuler la consomation des lampadaires et de générer un graphique 
 
-    Parameters
+    Parametres
     ----------
     nbr_simulation : int
         la nombre de simulation a effectuer
@@ -31,13 +31,13 @@ def graphe2(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, pui
     prob : list
         probabiliter que l'utilisateur fasse un arret (devant un lampadaire) ou on aura [ numérateur, denminominateur, activer ou non], par default [1, 10, True]
         
-    Returns
+    Renvoies
     -------
     None
         effectue une simulation et genere un graphique
     """
     
-    val1 = simulation(nbr_simulation, tps_simulation, temps, cst_tps, puissance, vitesse, nbr_utilisateur, type, nbr_allumage, 1, prob)
+    val1 = simulation(nbr_simulation, tps_simulation, cst_tps, puissance, nbr_utilisateur, type, nbr_allumage, 1, prob)
     val_opti1 = [ i[0] for i in val1["sim"] ]
 
     born_min1 = min(val_opti1) - 5
@@ -47,7 +47,7 @@ def graphe2(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, pui
     uopti1 = (1/(nbr_simulation-1)*sum((np.array(val_opti1)-val1["moy"][0])**2.))**0.5
     ##################################################################################################################
 
-    val2 = simulation(nbr_simulation, tps_simulation, temps, cst_tps, puissance, vitesse, nbr_utilisateur, type, nbr_allumage, 2, prob)
+    val2 = simulation(nbr_simulation, tps_simulation, cst_tps, puissance, nbr_utilisateur, type, nbr_allumage, 2, prob)
     val_opti2 = [ i[0] for i in val2["sim"] ]
 
     born_min2 = min(val_opti2) - 5
@@ -85,10 +85,12 @@ def graphe2(nbr_simulation:int, tps_simulation:int, temps:list, cst_tps:int, pui
     axes.set_xlabel('consomation (en wh)')
     axes.set_ylabel('effectif')
     axes.set_title('Consomation des lamapdaires par la méthode trajet() - Pour ' + str(len(val_opti1)) + ' iterations')
+    axes.set_title('Consomation des lamapdaires par la méthode trajet() - Pour ' + str(len(val_opti1)) + ' iterations')
     axes.hist(val_opti1, range = (born_min, born_max), bins = 200, color = 'blue', edgecolor = 'black')
     axes = figure.add_subplot(2, 1, 2)
     axes.set_xlabel('consomation (en wh)')
     axes.set_ylabel('effectif')
+    axes.set_title('Consomation des lamapdaires par la méthode trajet_voisins() - Pour ' + str(len(val_opti2)) + ' iterations')
     axes.set_title('Consomation des lamapdaires par la méthode trajet_voisins() - Pour ' + str(len(val_opti2)) + ' iterations')
     axes.hist(val_opti2, range = (born_min, born_max), bins = 200, color = 'red', edgecolor = 'black')
     pyplot.show()

@@ -8,12 +8,12 @@ import os
 def graph_save(filepath:str = "./Donnees/save.json")->None:
     """Permet de génerer un graphique d'une simulation a partir d'une sauvegarde
 
-    Parameters
+    Parametres
     ----------
     filepath : str, optional
         le chemin ver la sauvegarde, by default "./Donnees/save.json"
     
-    Returns
+    Renvoies
     -------
     None
     """
@@ -46,5 +46,5 @@ def graph_save(filepath:str = "./Donnees/save.json")->None:
     pyplot.hist(val_opti, range = (born_min, born_max), bins = 200, color = 'blue', edgecolor = 'black')
     pyplot.xlabel('consomation (en wh)')
     pyplot.ylabel('effectif')
-    pyplot.title('Pour ' + str(iteration) + ' iterations - Consomation optimisé')
+    pyplot.title('Pour ' + str(len(val_opti)) + ' iterations - Consomation optimisé')
     pyplot.show()

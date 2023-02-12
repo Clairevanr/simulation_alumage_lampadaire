@@ -4,6 +4,7 @@
 ## Sommaire 
 1. [Description](#description)
 2. [Utilisation](#utilisation)
+3. [Les Fonctions](#les-fonctions)
 
 
 ## Description 
@@ -107,6 +108,53 @@ Si vous choisez `oui` ou `o` :
 ### Etape 5 - Activativation de la sauvegarde*
 Il est possible d'activer la sauvegarde du resulta la simmulation dans un fichier [`save.json`](./Donnees/save.json), il est stocker dans `./Donnees/`. \
 *Attention la sauvegarde n'est disponible que pour le choix 1. `Normale` et non `Double`.
+
+## Les fonctions 
+On va ici décrire le fonctionnement des fonctions importante du programme
+
+***
+### `adaptation(trajet:list, vitesse:float, tps_simulation:int)->list:`
+> Cette fonction permet de rajouter a la liste le fait que les utilisateur se deplace plus ou moin vite et qu'il arrive donc par conséquent par au meme endroit en focntion de la vitesse en fonction du temps.
+
+On prend donc ici une résolution de $0,25$ s pour le calcule afin d'avoir de pourvoir voir une différence dans les haute vitesse (>130km/h) on aura donc pour formule :
+$$
+L_{\text{max}} = \frac{0,25 \times Tps}{6.94444e-5} \text{ (formule de la taille de la liste) } (1)
+$$
+Ou $L_{\text{max}}$ : est la taille de la liste a créer, $0,25$ : la résolution de la liste et $6.94444e-5$ : correspond a $0,25$ en heure. \
+Il sagit d'un produit en croix :
+| $Tps$ | $L_{\text{max}}$ |
+|-------|------------------|
+| $6.94444e-5$ | $0,25$ |
+
+$$
+\text{Nb} = \frac{20}{V \times 0,25} \text{ (formule du nombre de point) }(2)
+$$
+Ou $Nb$ : est le nombre de point avant un lampadaire, $V$ : la vitesse en m/s et $0,25$ : la résolution. \
+Il s'agit d'un produit en croix pour $V \times 0,25$ :
+| $V$ | $1$ |
+|---|---|
+| $X$ | $0,25$ |
+
+Ou $X$ : est la vitesse ramener en nombre de point
+
+#### Vérification de la méthode : 
+On se place dans le cas ou $V = 40$ km/h $\approx 11,1$ m/s : \
+On ara donc $X = 11,1 \times 0,25 \approx 2,8$ d'ou $Nb = \frac{20}{2,8} \approx 7,1$ on a donc $Nb$ qui est le nombre qui correspond au nombre de point nécéssaire pour parcourire environ 20m (soit la distance entre les lampadaire). \
+On vérifie la cohérence : \
+$T_{\text{tot}} = 7,1 \times 0,25 \approx 1,8$ s, soit $V_{\text{verif}} = \frac{D}{T_{\text{tot}}}$ ou $D = 20$ m on aura $V_{\text{verif}} = \frac{20}{1,8} \approx 11,1$ m/s on retrouve donc bien notre vitesse initiale lla formule est donc cohérente.
+
+#### Homogénité :
+* Pour la formule $(1)$ : 
+$$
+A = \frac{A \times T}{T} = A
+$$
+Le $0,25$ n'a pas de dimention ici car il représente la précision de l'échelle et non un temps
+* Pour la formule $(2) :$
+$$
+A = \frac{D}{\frac{D}{T} \times T} = \frac{D}D = A
+$$
+Le $0,25$ a une dimmension ici car il represente l'intervalle de temps \
+On a $A$ pour adimentionné
 \
 \
 \

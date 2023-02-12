@@ -1,0 +1,35 @@
+{
+    "rep_simulation": {
+        "sim": [
+            [
+                149,
+                3710
+            ],
+            [
+                134,
+                3710
+            ]
+        ],
+        "moy": [
+            141.5,
+            3710.0
+        ],
+        "tps_tot": 0.2985701560974121
+    },
+    "parametre": {
+        "nbr_simulation": 2,
+        "tps_simulation": 1,
+        "cst_tps": 0,
+        "puissance": 70,
+        "nbr_utilisateur": 10,
+        "type": 1,
+        "nbr_lampadaire": 0,
+        "fonction": 1,
+        "prob": [
+            1,
+            10,
+            false
+        ],
+        "save": true
+    }
+}

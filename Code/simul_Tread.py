@@ -4,7 +4,6 @@ import json
 import os
 import time
 from random import * 
-from random import * 
 from threading import Thread
 import sys
 
@@ -13,17 +12,6 @@ with open('./Donnees/carte.json') as json_carte:
     
 Data = { i : {"nb_allumage" : 0, "tps_allumage" : 0} for i in range(len(carte)) } # initialisations de la liste des données 
 start = [ i for i in carte if carte[i]["entree/sortie"] == True ]
-lien_sens = {
-    "N" : ["NO", "NE"],
-    "S" : ["SO", "SE"],
-    "O" : ["NO", "SO"],
-    "E" : ["NE", "SE"],
-    "NO" : ["O", "N"],
-    "NE" : ["N", "E"],
-    "SO" : ["S", "O"],
-    "SE" : ["S", "E"]
-}
-ecart_lampadaire = 20 #en m
 lien_sens = {
     "N" : ["NO", "NE"],
     "S" : ["SO", "SE"],
@@ -52,6 +40,20 @@ if len(err) != 0 :
         val_err += " " + i + " |"
     raise SyntaxError("Les données des points suivant sont mal édité : " + val_err)
 # on verifie qu'il n'y a pas d'erreur dans le fichier
+
+######################## Parametre de la simulation ######################## 
+simulation_L = []
+nbr_simulation = 0
+tps_simulation = 0
+cst_tps = 0
+puissance = 0 
+nbr_utilisateur = 0
+type = 0
+nbr_lampadaire = 0
+fonction = 0
+Data_d = {}
+prob = 0
+######################## Parametre de la simulation ######################## 
 
 def updt(total, progress, prefix:str = "Calculs en cours : ", dim:int = 40)->sys:
     """
@@ -296,100 +298,6 @@ def trajet(tps_simulation:int, vitesse:float, prob:list = [1, 20, True], int:tup
         orientation = sens[randint(0, len(start) - 1)]
     return trajet_tot
 
-import random
-from typing import List, Tuple
-
-map_data = carte 
-link_directions = lien_sens
-def simulate_trip(time: int, speed: float, prob: Tuple[int, int, bool] = (1, 20, True), attempts: Tuple[int, int] = (1, 5)) -> List[str]:
-    """Simulates the movement of a user in a specific direction.
-
-    Parameters
-    ----------
-    time : int
-        The time of the simulation
-    speed : float
-        The speed of the user
-    prob : Tuple[int, int, bool], optional
-        The probability that the user stops in front of a street lamp (1/10 => [1, 10, "if we activate or not: bool"]), default [1, 20, True]
-    attempts : Tuple[int, int], optional
-        The number of attempts to make the probability ("from", "to"), default (1, 5)
-
-    Returns
-    -------
-    List[str]
-        Returns the list of street lamps to turn on
-    """
-
-    def get_next(current: str) -> str:
-        """Gets the next street lamp that will be turned on
-
-        Parameters
-        ----------
-        current : str
-            The street lamp where we are currently located
-
-        Returns
-        -------
-        str
-            The next street lamp
-        """
-        next_lamp = map_data[current][orientation][random.randint(0, len(map_data[current][orientation]) - 1)]
-        if next_lamp == 0:
-            random.shuffle(link_directions[orientation])
-            for i in link_directions[orientation]:
-                next_lamp = map_data[current][i][random.randint(0, len(map_data[current][i]) - 1)]
-                if next_lamp != 0:
-                    return str(next_lamp)
-            if next_lamp == 0:
-                valid_options = [p for i in ["N", "S", "O", "E", "NO", "NE", "SO", "SE"] for p in map_data[current][i] if p != 0]
-                next_lamp = valid_options[random.randint(0, len(valid_options) - 1)]
-                return str(next_lamp)
-        else:
-            return str(next_lamp)
-    
-    directions = ["N", "S", "O", "E", "NO", "NE", "SO", "SE"]
-    orientation = directions[random.randint(0, len(start) - 1)]
-    current_lamp = start[random.randint(0, len(start) - 1)]
-    trip = [current_lamp]
-    current_lamp = get_next(current_lamp)
-    trip.append(current_lamp)
-    
-    total_trip = []
-    max_distance = speed * time 
-    max_lamps = round(max_distance / 0.02)
-    while max_lamps - len(total_trip) > 0:
-        while not map_data[current_lamp]["entree/sortie"]:
-            prev_lamp = current_lamp
-            i = 0
-            while current_lamp in trip:
-                current_lamp = get_next(prev_lamp)
-                i += 1
-                if i >= 10:
-                    break
-            trip.append(current_lamp)
-            if prob[2]:
-                for _ in range(random.randint(attempts[0], attempts[1])):
-                    stop = random.randint(1, prob[1])
-                    if stop <= prob[0]:
-                        trip.append(current_lamp)
-        total_trip += trip
-        current_lamp = start[random.randint(0, len(start) - 1)]
-        trip = [current_lamp]
-        current_lamp = get_next(current_lamp)
-        trip.append(current_lamp)
-        orientation = directions[random.randint(0, len(start) - 1)]
-    return total_trip
-
-import timeit
-
-""" time_elapsed = timeit.timeit(lambda: simulate_trip(1, 30), number=1000)
-print("Le temps d'exécution est de 1: ", time_elapsed)
-
-time_elapsed = timeit.timeit(lambda: trajet(1, 30), number=1000)
-print("Le temps d'exécution est de 2: ", time_elapsed)
- """
- 
 def adaptation(trajet:list, vitesse:float, tps_simulation:int)->list:
     """Permet de lier la vitesse de l'utilisateur a son deplacment ainsi qu'a sa vitesse, on cosidère une liste ou chaque element représente 0.5s
 
@@ -434,6 +342,34 @@ def adaptation(trajet:list, vitesse:float, tps_simulation:int)->list:
     A = [ A[i] for i in range(len(A)) if i <= z ]
     return A
     
+def deplacement_calcule(id)->None:
+    """Permet le calcule du deplacmement
+
+    Parametres
+    ----------
+    id : _type_
+        id de l'utilisateur
+    """
+    
+    global Data_d
+    vit_tps = cal_vit_tps()
+    vitesse_utilisateur = vit_tps[0] # on choisie une vitesse aléatoire pour l'utilisateur
+    if fonction == 1 : # on definie le type de trajet a prendre 
+        trajet_utilisateur = adaptation(trajet(tps_simulation, vitesse_utilisateur, prob), vitesse_utilisateur, tps_simulation)
+    elif fonction == 2 :
+        trajet_utilisateur = adaptation(trajet_voisin(tps_simulation, vitesse_utilisateur, type, nbr_lampadaire, prob), vitesse_utilisateur, tps_simulation)
+    distance_max = vitesse_utilisateur * tps_simulation # on cacule la distance max que peut parcourire les utilisateur en fonction de leur temps impartie
+    lampadaire_max = round(distance_max / 0.02) # on determine le nombre max de lampadaire q'il peuvent allumer en fonction de leur vitesse et du temps de l'expérimentation | on a des lampadaire espacer de 20m = 0,02km 
+    if len(trajet_utilisateur) > lampadaire_max : # si il y a trop de lampadaire allumer lors du trajet on en retire 
+        trajetV2 = [ trajet_utilisateur[i] for i in range(lampadaire_max) ]
+        trajet_utilisateur = trajetV2
+    Data_d[id] = {
+        "trajet" : trajet_utilisateur,
+        "vitesse" : vitesse_utilisateur,
+        "lampadaire_max" : lampadaire_max,
+        "temps" : vit_tps[1]
+    }
+
 def deplacement(tps_simulation:int, nbr_utilisateur:int, type:int = 1, nbr_lampadaire:int = 0, fonction:int = 1, prob:list = [1, 10, True])->dict:
     """Permet de de simuler le deplacement simultane de plusieur utilisateu en meme temps sur un temps donner pour un nombre donné d'utilisateur
 
@@ -457,25 +393,17 @@ def deplacement(tps_simulation:int, nbr_utilisateur:int, type:int = 1, nbr_lampa
     dict
         renvoie alors les trajet, les vitesses et le nombre de lampadaire allumable par les utilisateurs
     """
-    Data_d = {}
+    global Data_d
+    global nbr_simulation
+    modif(nbr_simulation, tps_simulation, cst_tps, puissance, nbr_utilisateur, type, nbr_lampadaire, fonction, prob)
+    
+    threads = []
     for i in range(nbr_utilisateur):
-        vit_tps = cal_vit_tps()
-        vitesse_utilisateur = vit_tps[0] # on choisie une vitesse aléatoire pour l'utilisateur
-        if fonction == 1 : # on definie le type de trajet a prendre 
-            trajet_utilisateur = adaptation(trajet(tps_simulation, vitesse_utilisateur, prob), vitesse_utilisateur, tps_simulation)
-        elif fonction == 2 :
-            trajet_utilisateur = adaptation(trajet_voisin(tps_simulation, vitesse_utilisateur, type, nbr_lampadaire, prob), vitesse_utilisateur, tps_simulation)
-        distance_max = vitesse_utilisateur * tps_simulation # on cacule la distance max que peut parcourire les utilisateur en fonction de leur temps impartie
-        lampadaire_max = round(distance_max / 0.02) # on determine le nombre max de lampadaire q'il peuvent allumer en fonction de leur vitesse et du temps de l'expérimentation | on a des lampadaire espacer de 20m = 0,02km 
-        if len(trajet_utilisateur) > lampadaire_max : # si il y a trop de lampadaire allumer lors du trajet on en retire 
-            trajetV2 = [ trajet_utilisateur[i] for i in range(lampadaire_max) ]
-            trajet_utilisateur = trajetV2
-        Data_d[i] = {
-            "trajet" : trajet_utilisateur,
-            "vitesse" : vitesse_utilisateur,
-            "lampadaire_max" : lampadaire_max,
-            "temps" : vit_tps[1]
-        }
+        t = Thread(target=deplacement_calcule, args=(i,))
+        threads.append(t)
+        t.start() 
+    for p in threads:
+        p.join()
     
     return Data_d
 
@@ -558,6 +486,72 @@ def f_save(data:dict, filepath = "./Donnees/save.json")->None:
     with open(filepath, 'w') as mon_fichier: # on créer le fichier voulue et on l'enregistre a l'endroit souhaité 
 	    json.dump(data, mon_fichier)
 
+def modif(nbr_s:int, tps_s:int, consttps:int, w:int, nbr_u:int, Type:int = 1, nbr_l:int = 0, f:int = 1, p:list = [1, 10, True])->None:
+    """Permet de mettre a jours les variables a utiliser pour la simulation 
+
+    Parametres
+    ----------
+    nbr_s : int
+        la nombre de simulation a effectuer
+    tps_s : int
+        le temps de la simulation 
+    consttps : int
+        le temps d'allumage des lampadaires 
+    w : int
+        puissance des lamapdaires
+    nbr_u : int
+        nombre d'utilisateur
+    Type : int
+        type de deplacement : 1-deplacement noramale, 2-deplacemnt en saturation du réseau, 3-deplacement avec condition du nbr de deplacement (+ ou - le nombre demander), par default 1
+    nbr_l : int
+        nombre min de lampadaire a allumer (pris en compte qu'avec type = 3), par default 0
+    f : int
+        la fonction a utiliser pour la simulation du trajet. 1-trajet() | 2-trajet_voisin(), par default trajet()
+    p : list
+        probabiliter que l'utilisateur fasse un arret (devant un lampadaire) ou on aura [ numérateur, denminominateur, activer ou non], par default [1, 10, True]
+    
+    Renvoies
+    -------
+    None
+    """
+    global nbr_simulation
+    nbr_simulation = nbr_s
+    global tps_simulation
+    tps_simulation = tps_s
+    global cst_tps
+    cst_tps = consttps
+    global puissance
+    puissance = w
+    global nbr_utilisateur
+    nbr_utilisateur = nbr_u
+    global type
+    type = Type
+    global nbr_lampadaire
+    nbr_lampadaire = nbr_l
+    global fonction
+    fonction = f
+    global prob
+    prob = p
+    
+def simulation_calcule(id)->None:
+    """Permet de generer une simulation
+
+    Parametres
+    ----------
+    id : _type_
+        id de la tache effectuer
+
+    Renvoies
+    -------
+    None
+    """
+    global simulation_L
+    etape1 = deplacement(tps_simulation, nbr_utilisateur, type, nbr_lampadaire, fonction, prob)
+    etape2 = fusion(etape1)
+    etape3 = deplacement_affectation(etape2, etape1)
+    etape4 = calcule(tps_simulation, puissance, cst_tps, etape3)
+    simulation_L.append(etape4)
+
 def simulation(nbr_simulation:int, tps_simulation:int, cst_tps:int, puissance:int, nbr_utilisateur:int, type:int = 1, nbr_lampadaire:int = 0, fonction:int = 1, proba:list = [1, 10, True], save:bool = False, info_sup:str = "")->dict:
     """Permet de simuler la consomation des lampadaires
 
@@ -594,16 +588,24 @@ def simulation(nbr_simulation:int, tps_simulation:int, cst_tps:int, puissance:in
     start = time.time()
 
     print(chg)
-    simulation_L = []
-    updt(nbr_simulation, 0, info_sup + "Calcule : ")
+    modif(nbr_simulation, tps_simulation, cst_tps, puissance, nbr_utilisateur, type, nbr_lampadaire, fonction, proba)
+    threads = []
+    updt(nbr_simulation, 0, info_sup + "Initialisation : ")
     for i in range(nbr_simulation):
-        etape1 = deplacement(tps_simulation, nbr_utilisateur, type, nbr_lampadaire, fonction, proba)
-        etape2 = fusion(etape1)
-        etape3 = deplacement_affectation(etape2, etape1)
-        etape4 = calcule(tps_simulation, puissance, cst_tps, etape3)
-        simulation_L.append(etape4)
-        updt(nbr_simulation, i + 1, info_sup +  "Calcule : ")
+        t = Thread(target=simulation_calcule, args=(i,))
+        threads.append(t)
+        t.start()
+        updt(nbr_simulation, i + 1, info_sup +  "Initialisation : ")
     
+    os.system('cls' if os.name == 'nt' else 'clear')
+    a = 0
+    print(chg)
+    updt(len(threads), a, info_sup +  "Verification : ")
+    for p in threads:
+        p.join()
+        a += 1
+        updt(len(threads), a, info_sup +  "Verification : ")
+        
     print()
     optimiser_list = [ i[0] for i in simulation_L ] # on fait les moyenne 
     classic_list = [ i[1] for i in simulation_L ]
