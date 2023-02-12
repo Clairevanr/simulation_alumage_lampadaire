@@ -2,7 +2,7 @@
 """
 import json
 import os
-import time
+from time import perf_counter
 from random import * 
 from random import * 
 from threading import Thread
@@ -52,6 +52,28 @@ if len(err) != 0 :
         val_err += " " + i + " |"
     raise SyntaxError("Les données des points suivant sont mal édité : " + val_err)
 # on verifie qu'il n'y a pas d'erreur dans le fichier
+
+def time_adap(a:int)->str:
+    """Permet de convertien un temps en second en fonction de sa valeur
+
+    Parametres
+    ----------
+    a : int
+        le temps en seconde
+
+    Renvoies
+    --------
+    str
+        le temps convertie
+    """
+    if a >= 86400 : #jours
+        return str(round(a/86400)) + "j"
+    if a >= 3600 : #heure
+        return str(round(a/3600)) + "h"
+    if a >= 60 : #min
+        return str(round(a/60)) + "min"
+    if a < 60 : #second
+        return str(a) + "s"
 
 def updt(total, progress, prefix:str = "Calculs en cours : ", dim:int = 40)->sys:
     """
@@ -591,26 +613,33 @@ def simulation(nbr_simulation:int, tps_simulation:int, cst_tps:int, puissance:in
     dict
         renvoie alors la consomation moyenne otimiser et celle classique ainsi que tout les valeur de simmulation. ( { "sim" : [...], "moy" : (.., ..)} )
     """
-    start = time.time()
-
+        
     print(chg)
     simulation_L = []
+    time_b = []
     updt(nbr_simulation, 0, info_sup + "Calcule : ")
+    
+    start = perf_counter()
+    
     for i in range(nbr_simulation):
+        start_in = perf_counter() # temps
         etape1 = deplacement(tps_simulation, nbr_utilisateur, type, nbr_lampadaire, fonction, proba)
         etape2 = fusion(etape1)
         etape3 = deplacement_affectation(etape2, etape1)
         etape4 = calcule(tps_simulation, puissance, cst_tps, etape3)
         simulation_L.append(etape4)
-        updt(nbr_simulation, i + 1, info_sup +  "Calcule : ")
+        end_in = perf_counter() # temps
+        time_b.append(end_in - start_in) # temps calucle
+        time_estim = round((sum(time_b)/len(time_b)) * (nbr_simulation - i))
+        updt(nbr_simulation, i + 1, info_sup +  "Temps restant : " + time_adap(time_estim) + " | Calcule : ")
+    
+    end = perf_counter()
     
     print()
     optimiser_list = [ i[0] for i in simulation_L ] # on fait les moyenne 
     classic_list = [ i[1] for i in simulation_L ]
     moy_opti = sum(optimiser_list)/len(simulation_L)
     moy_classic = sum(classic_list)/len(simulation_L)
-    
-    end = time.time()
     
     rep = {
         "sim" : simulation_L,

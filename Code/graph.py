@@ -59,7 +59,7 @@ def graphe1(nbr_simulation:int, tps_simulation:int, cst_tps:int, puissance:int, 
     print("u(consomation optimiser) = " + str(uopti) + "\n")
     print("Ecart : " + str(((abs(val["moy"][0] - val["moy"][1]) / val["moy"][1]) * 100)) + "%\n")
     print("Temps : \n")
-    print(" - Temps totale : " + str(val["tps_tot"]) + "s")
+    print(" - Temps totale : " + time_adap(val["tps_tot"]))
     print("\n")
     ##################################################################################################################
     pyplot.hist(val_opti, range = (born_min, born_max), bins = 200, color = 'blue', edgecolor = 'black')
