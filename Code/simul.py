@@ -7,12 +7,19 @@ from random import *
 from random import * 
 from threading import Thread
 import sys
+import random
+from typing import List, Tuple
 
 with open('./Donnees/carte.json') as json_carte:
     carte = json.load(json_carte)
+with open('./Donnees/carte_data.json') as json_carte:
+    carte_data = json.load(json_carte)
     
 Data = { i : {"nb_allumage" : 0, "tps_allumage" : 0} for i in range(len(carte)) } # initialisations de la liste des données 
 start = [ i for i in carte if carte[i]["entree/sortie"] == True ]
+dist_tot = carte_data["dist_tot"] #formule : 20m * (nb_de_distance = len(carte) + nb_d_intersection - le_nb_ligne)
+dim_voiture_moyenne = 4.7 #m
+
 lien_sens = {
     "N" : ["NO", "NE"],
     "S" : ["SO", "SE"],
@@ -110,6 +117,28 @@ def cal_vit_tps(intervale:list = [4, 130])->tuple:
     vit = randint(intervale[0], intervale[1]) #en km/h
     tps = ecart_lampadaire / (vit/3.6) # en s
     return (vit, tps)
+
+def max_user(u:int)->True:
+    """Permet de déterminer le nombre max d'utilisateur possible dans la carte donnée
+
+    Parametres
+    ----------
+    u : int
+        le nombre d'utilisatuer de la simulation
+
+    Renvoies
+    --------
+    True
+        Si tout se passe bien 
+
+    Exceptions
+    ----------
+    ValueError
+        Dans le cas ou la valeur dépasse le nombre d'utilisateur max de la carte on créer une erreur
+    """
+    if round(dist_tot/dim_voiture_moyenne) < u :
+        raise ValueError("Vous avez dépassé le nombre max d'utilisateur possible sur cette carte : " + str(u) + " > " + str(round(dist_tot/dim_voiture_moyenne)))
+    return True
 
 def trajet_voisin(tps_simulation:int, vitesse:float, type:int = 1, nbr_lampadaire:int = 0, prob:list = [1, 20, True])->list:
     """Permet de générer le trajet de façon aléatoire d'un utilisateur dans la ville (trajet absurde) \n
@@ -318,9 +347,7 @@ def trajet(tps_simulation:int, vitesse:float, prob:list = [1, 20, True], int:tup
         orientation = sens[randint(0, len(start) - 1)]
     return trajet_tot
 
-import random
-from typing import List, Tuple
-
+#version chatGPT
 map_data = carte 
 link_directions = lien_sens
 def simulate_trip(time: int, speed: float, prob: Tuple[int, int, bool] = (1, 20, True), attempts: Tuple[int, int] = (1, 5)) -> List[str]:
@@ -402,15 +429,7 @@ def simulate_trip(time: int, speed: float, prob: Tuple[int, int, bool] = (1, 20,
         trip.append(current_lamp)
         orientation = directions[random.randint(0, len(start) - 1)]
     return total_trip
-
-import timeit
-
-""" time_elapsed = timeit.timeit(lambda: simulate_trip(1, 30), number=1000)
-print("Le temps d'exécution est de 1: ", time_elapsed)
-
-time_elapsed = timeit.timeit(lambda: trajet(1, 30), number=1000)
-print("Le temps d'exécution est de 2: ", time_elapsed)
- """
+#version chatGPT
  
 def adaptation(trajet:list, vitesse:float, tps_simulation:int)->list:
     """Permet de lier la vitesse de l'utilisateur a son deplacment ainsi qu'a sa vitesse, on cosidère une liste ou chaque element représente 0.5s
@@ -437,7 +456,7 @@ def adaptation(trajet:list, vitesse:float, tps_simulation:int)->list:
     if vitesse < 3.6 :
         raise ValueError("La vitesse est bien trop petite pour réaliser le calcule (vitesse_min = 3.6km/h)")
     if vitesse > 200 :
-        raise ValueError("La vitesse est bien trop élever pour réaliser le calcule (vitesse_max = 130km/h, la résolution des calcules limite la vitesse max)")
+        raise ValueError("La vitesse est bien trop élever pour réaliser le calcule (vitesse_max = 200km/h, la résolution des calcules limite la vitesse max)")
     A = [ 0 for _ in range(round((0.25 * tps_simulation) / 6.94444e-5)) ] # pas de 0.1s pour le niveau de precision on a donc une vitesse max de 130km/h | pour la formule il sagit d'un produit en croix
     V = round(ecart_lampadaire/((vitesse / 3.6) * 0.25)) # on a ici le nombre de point a parcourire avant d'allumer un lampadaire | on passe la vitesse pour 0.1s | pour la formule il sagit d'un produit en croix
     r = 0
@@ -454,7 +473,20 @@ def adaptation(trajet:list, vitesse:float, tps_simulation:int)->list:
             j += 1
             r = 0
     A = [ A[i] for i in range(len(A)) if i <= z ]
-    return A
+    
+    # prise en compte de la taille des voiture 
+    B = A[:] + [ 0 for _ in range(V-1) ]
+    taille_voiture = round(dim_voiture_moyenne/(ecart_lampadaire/V)) - 1 # en nombre de points | on retire 1 car on compte pas le point deja mis
+    if taille_voiture > 0 :
+        place = []
+        for i in range(len(A)) :
+            if A[i] != 0 :
+                place.append((i, A[i]))
+        for i in place : 
+            for p in range(1, taille_voiture) :
+                B[i[0] + p] = i[1]
+    # prise en compte de la taille des voiture 
+    return B
     
 def deplacement(tps_simulation:int, nbr_utilisateur:int, type:int = 1, nbr_lampadaire:int = 0, fonction:int = 1, prob:list = [1, 10, True])->dict:
     """Permet de de simuler le deplacement simultane de plusieur utilisateu en meme temps sur un temps donner pour un nombre donné d'utilisateur
@@ -613,7 +645,9 @@ def simulation(nbr_simulation:int, tps_simulation:int, cst_tps:int, puissance:in
     dict
         renvoie alors la consomation moyenne otimiser et celle classique ainsi que tout les valeur de simmulation. ( { "sim" : [...], "moy" : (.., ..)} )
     """
-        
+    
+    max_user(nbr_utilisateur)
+       
     print(chg)
     simulation_L = []
     time_b = []
@@ -651,3 +685,6 @@ def simulation(nbr_simulation:int, tps_simulation:int, cst_tps:int, puissance:in
         data = {"rep_simulation" : rep, "parametre" : {"nbr_simulation" : nbr_simulation, "tps_simulation" : tps_simulation, "cst_tps" : cst_tps, "puissance": puissance, "nbr_utilisateur": nbr_utilisateur, "type": type, "nbr_lampadaire": nbr_lampadaire, "fonction": fonction, "prob" : proba,  "save": save}}
         f_save(data) 
     return rep
+
+
+print(simulation(2, 1, 0, 70, 230)["moy"])
