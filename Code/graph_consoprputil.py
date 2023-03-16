@@ -5,8 +5,8 @@ from matplotlib import pyplot
 import os
 import json
 
-interalle = 250
-nombre_max = 5000
+interalle = 15
+nombre_max = 230
 
 ###Parametre de simulation###
 nbr_simulation = 100

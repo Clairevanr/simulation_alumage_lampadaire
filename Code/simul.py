@@ -1,14 +1,13 @@
 """Permet de simuler le déplacement aléatoire d'utilisateur au seins d'une `carte` afin de déterminer la consomation de ces utilisateur en fonction de leur déplacament (allumage de lampadaire)
 """
 import json
-import os
 from time import perf_counter
 from random import * 
 from random import * 
-from threading import Thread
 import sys
 import random
 from typing import List, Tuple
+from math import *
 
 with open('./Donnees/carte.json') as json_carte:
     carte = json.load(json_carte)
@@ -115,7 +114,7 @@ def cal_vit_tps(intervale:list = [4, 130])->tuple:
         un tuple de la vitesse et du temps associer : `(vit, tps)`
     """
     vit = randint(intervale[0], intervale[1]) #en km/h
-    tps = ecart_lampadaire / (vit/3.6) # en s
+    tps = ceil(ecart_lampadaire / (vit/3.6)) # en s | on arrondie au sup car on veux une valuer ronde max pour que le lampadaire soit allumer le plus longtemps possible 
     return (vit, tps)
 
 def max_user(u:int)->True:
@@ -139,6 +138,29 @@ def max_user(u:int)->True:
     if round(dist_tot/dim_voiture_moyenne) < u :
         raise ValueError("Vous avez dépassé le nombre max d'utilisateur possible sur cette carte : " + str(u) + " > " + str(round(dist_tot/dim_voiture_moyenne)))
     return True
+
+def temps_allumage(vitesse:float, temps:float)->float :
+    """Permet de cauler de temps d'allumage des lampadaire en focntion de la vitesse des voitures en prenant en compte l'anvance d'allumage des lampadaires.
+    On prend ren reference : 10m/s -> 2 lampadaire d'alumer donc 1 d'anvance (ou on a 10m = ecart_lampadaire / 2 pour l'exemple) on fait un produit en croix pour avoir les valeurs
+
+    Parametres
+    ----------
+    vitesse : float
+        la vitesse de l'utilisateur en km/h
+    temps : float
+        le temps d'allumage du lampadaire principale 
+
+    Renvoies
+    --------
+    float
+        le temps totale d'alumage des lampadaires 
+    """
+    vit_ms = vitesse / 3.6 # km/h -> m/s
+    nb_lampe_avance = ceil((vit_ms * 2) / (ecart_lampadaire / 2)) # nombre de lampadaire d'avance 
+    tps_tot = temps
+    for i in range(2, nb_lampe_avance + 1) : # on calcule le temps que les lampadaire suplementaire vont rester alumer 
+        tps_tot += temps / i 
+    return tps_tot
 
 def trajet_voisin(tps_simulation:int, vitesse:float, type:int = 1, nbr_lampadaire:int = 0, prob:list = [1, 20, True])->list:
     """Permet de générer le trajet de façon aléatoire d'un utilisateur dans la ville (trajet absurde) \n
@@ -476,7 +498,7 @@ def adaptation(trajet:list, vitesse:float, tps_simulation:int)->list:
     
     # prise en compte de la taille des voiture 
     B = A[:] + [ 0 for _ in range(V-1) ]
-    taille_voiture = round(dim_voiture_moyenne/(ecart_lampadaire/V)) - 1 # en nombre de points | on retire 1 car on compte pas le point deja mis
+    taille_voiture = ceil(dim_voiture_moyenne/(ecart_lampadaire/V)) - 1 # en nombre de points | on retire 1 car on compte pas le point deja mis
     if taille_voiture > 0 :
         place = []
         for i in range(len(A)) :
@@ -528,7 +550,7 @@ def deplacement(tps_simulation:int, nbr_utilisateur:int, type:int = 1, nbr_lampa
             "trajet" : trajet_utilisateur,
             "vitesse" : vitesse_utilisateur,
             "lampadaire_max" : lampadaire_max,
-            "temps" : vit_tps[1]
+            "temps" : ceil(temps_allumage(vitesse_utilisateur, vit_tps[1])) # on arrondie au sup pour avoir une valeur ronde t pour que le lampadaire reste le max possible de temps allumé
         }
     
     return Data_d
@@ -685,6 +707,3 @@ def simulation(nbr_simulation:int, tps_simulation:int, cst_tps:int, puissance:in
         data = {"rep_simulation" : rep, "parametre" : {"nbr_simulation" : nbr_simulation, "tps_simulation" : tps_simulation, "cst_tps" : cst_tps, "puissance": puissance, "nbr_utilisateur": nbr_utilisateur, "type": type, "nbr_lampadaire": nbr_lampadaire, "fonction": fonction, "prob" : proba,  "save": save}}
         f_save(data) 
     return rep
-
-
-print(simulation(2, 1, 0, 70, 230)["moy"])
