@@ -8,6 +8,9 @@ import json
 interalle = 1
 tps_simulation_max = 24
 
+# S'assure que le dossier ./Donnes existe et en crée un si non
+os.makedirs('./Donnees', exist_ok=True)
+
 ###Parametre de simulation###
 nbr_simulation = 100
 tps_simulation = interalle
